@@ -3,4 +3,4 @@ ProdcutName platform berbasis website dan aplikasi mobile yang membantu pasien d
 ## Kelompok B1_05
 Ketua Kelompok: Alexander Johan Pramudito  
 Anggota 1: Barbara Neanake Ajiesti  
-Anggota 2: Satama Safika
+Anggota 2: Satama Safika - 22/492880/TK/53955
