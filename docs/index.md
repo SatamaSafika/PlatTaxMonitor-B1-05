@@ -39,7 +39,7 @@ PlatTax Monitor bekerja dengan alur sebagai berikut:
 ---
 
 ## 🛠️ Use Case Diagram  
-![Use Case Diagram](https://github.com/SatamaSafika/ProductName-B1-05/blob/main/assets/Usecase_PlatTax.png)  
+![Use Case Diagram](https://raw.githubusercontent.com/SatamaSafika/ProductName-B1-05/main/assets/Usecase_PlatTax.png)
 
 ### Penjelasan Use Case  
 1. **Pemilik Kendaraan**  
@@ -54,7 +54,7 @@ PlatTax Monitor bekerja dengan alur sebagai berikut:
 ---
 
 ## 📊 Lean Canvas  
-![Lean Canvas](https://github.com/SatamaSafika/ProductName-B1-05/blob/main/assets/LeanCanvas.png)  
+![Lean Canvas](https://raw.githubusercontent.com/SatamaSafika/ProductName-B1-05/main/assets/LeanCanvas.png)
 
 ---
 
