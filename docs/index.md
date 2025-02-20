@@ -65,6 +65,22 @@ PlatTax Monitor bekerja dengan alur sebagai berikut:
 
 ---
 
+## 📁 ERD (Entity Relationship Diagram)
+
+![ERD](https://github.com/SatamaSafika/ProductName-B1-05/blob/main/assets/ERD.png?raw=true)
+
+ERD menggambarkan hubungan antar entitas dalam sistem PlatTax Monitor, mencakup informasi pengguna, kendaraan, data pajak, serta proses verifikasi dan notifikasi pajak.
+
+---
+
+## 📅 Gantt Chart
+
+![Gantt Chart](https://github.com/SatamaSafika/ProductName-B1-05/blob/main/assets/GanttChart.png?raw=true)
+
+Gantt Chart ini menunjukkan perencanaan dan alur pengerjaan proyek PlatTax Monitor dari awal hingga implementasi. Diagram ini membantu dalam mengelola waktu dan memastikan setiap tahapan proyek selesai tepat waktu.
+
+---
+
 ## 🚀 Kesimpulan
 
 PlatTax Monitor menawarkan solusi inovatif untuk meningkatkan kepatuhan pajak kendaraan. Dengan teknologi AI, sistem ini dapat membantu pemilik kendaraan menghindari denda dan memastikan mereka selalu membayar pajak tepat waktu.
