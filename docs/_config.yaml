@@ -1,0 +1,3 @@
+echo "theme: minima
+title: \"Nama Aplikasimu\"
+description: \"Deskripsi singkat aplikasi\"" > _config.yml
