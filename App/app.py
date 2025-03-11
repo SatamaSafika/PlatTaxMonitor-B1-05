@@ -6,12 +6,13 @@ from ultralytics import YOLO
 import easyocr
 import re
 import os
+import torch
 
 # Inisialisasi FastAPI
 app = FastAPI()
 
 # Load model YOLOv8 dari .pt
-model = YOLO(r"C:\Users\Neanake\PlatTaxMonitor-B1-05\AI\training_results\weights\best.pt")
+model = YOLO(r"AI/training_results/weights/best.pt")
 
 # Inisialisasi EasyOCR
 reader = easyocr.Reader(['en'])
