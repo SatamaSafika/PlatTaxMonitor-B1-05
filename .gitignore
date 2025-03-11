@@ -61,3 +61,5 @@ coverage.xml
 # Local env files
 .env
 .env.*
+
+node_modules
