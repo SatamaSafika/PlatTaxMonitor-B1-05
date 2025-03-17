@@ -67,8 +67,8 @@ export function LoginForm({
   return (
     <Card className={cn("w-[380px]", className)} {...props}>
       <CardHeader>
-        <CardTitle className="text-3xl">Login</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-3xl text-center">Login</CardTitle>
+        <CardDescription className="text-center">
           Enter your email and password to login to your account
         </CardDescription>
       </CardHeader>
@@ -102,10 +102,10 @@ export function LoginForm({
             />
           </div>
           {error && <p className="text-sm text-red-500">{error}</p>}
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Login"}
+          <Button type="submit"  className={`w-full bg-[#030117] hover:bg-[#020010] text-white font-bold py-2 px-4 rounded`} disabled={isLoading}>
+          {isLoading ? "Logging in..." : "Login"}
           </Button>
-          <CardDescription>
+          <CardDescription className="text-center">
             {`Don't have an account?`}{" "}
             <Link href="/register" className="text-[#327cd2]">
               Register

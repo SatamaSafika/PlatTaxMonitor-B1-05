@@ -1,15 +1,24 @@
-"use client";  // This marks the component as a client-side component
+"use client";
 
-import { useRouter } from 'next/navigation';  // Use 'next/navigation' for routing in App Router
+import { useSession } from "next-auth/react";  // Import the next-auth session hook
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 export default function Home() {
+  const { data: session, status } = useSession();  // Use session to check authentication status
   const router = useRouter();
 
   useEffect(() => {
-    // Redirect to the dashboard page
-    router.push('/dashboard');
-  }, [router]);
+    if (status === "loading") return; // Don't redirect while checking session
 
-  return null;  // No UI needed, just the redirect
+    if (!session) {
+      // If user is not authenticated, redirect to /login
+      router.push('/login');
+    } else {
+      // If authenticated, redirect to /dashboard
+      router.push('/dashboard');
+    }
+  }, [session, status, router]);
+
+  return null;  // No UI needed
 }

@@ -128,8 +128,8 @@ export function RegisterForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="w-[380px]">
         <CardHeader>
-          <CardTitle className="text-3xl">Register</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-3xl text-center">Register</CardTitle>
+          <CardDescription className="text-center">
             Enter your information to create an account
           </CardDescription>
         </CardHeader>
@@ -199,10 +199,10 @@ export function RegisterForm({
                 {errors.submit}
               </p>
             )}
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit"  className={`w-full bg-[#030117] hover:bg-[#020010] text-white font-bold py-2 px-4 rounded`} disabled={isLoading}>
               {isLoading ? "Loading..." : "Register"}
             </Button>
-            <CardDescription>
+            <CardDescription className="text-center">
               Already have an account?{" "}
               <Link href="/login" className="text-[#327cd2]">
                 Login
