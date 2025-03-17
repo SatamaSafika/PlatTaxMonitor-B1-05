@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import Sidebar from "@/components/Sidebar"; // Adjust this path if necessary
+import Sidebar from "@/components/Sidebar"; 
 
 export default function DetectPlat() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -76,13 +76,6 @@ export default function DetectPlat() {
           {/* Upload Button */}
           <label htmlFor="imageUpload" className="cursor-pointer">
             <div className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-4 px-8 rounded-lg text-lg font-bold transition-all duration-300 hover:shadow-xl transform hover:scale-105">
-              <Image
-                src="/next.svg" // Optional: you can use another small icon here
-                alt="Upload Icon"
-                width={30}
-                height={30}
-                className="mr-2"
-              />
               Upload Your Photo Here!
             </div>
           </label>
