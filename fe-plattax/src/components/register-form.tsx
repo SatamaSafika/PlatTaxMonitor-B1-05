@@ -16,14 +16,14 @@ import Link from "next/link";
 import { useAuth } from "@/app/hooks/use-auth";
 
 type FormData = {
-  fullName: string;
+  username: string;
   email: string;
   password: string;
   confirmPassword: string;
 };
 
 type FormErrors = {
-  fullName?: string;
+  username?: string;
   email?: string;
   password?: string;
   confirmPassword?: string;
@@ -36,7 +36,7 @@ export function RegisterForm({
 }: React.ComponentPropsWithoutRef<"div">) {
   const router = useRouter();
   const [formData, setFormData] = useState<FormData>({
-    fullName: "",
+    username: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -47,7 +47,7 @@ export function RegisterForm({
   const validateForm = () => {
     const newErrors: FormErrors = {};
 
-    if (!formData.fullName) newErrors.fullName = "Full name is required";
+    if (!formData.username) newErrors.username = "Full name is required";
     if (!formData.email) newErrors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Email is invalid";
@@ -90,7 +90,7 @@ export function RegisterForm({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          fullName: formData.fullName,
+          username: formData.username,
           email: formData.email,
           password: formData.password,
           confirmPassword: formData.confirmPassword,
@@ -136,17 +136,17 @@ export function RegisterForm({
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-3">
             <div className="space-y-2">
-              <Label htmlFor="fullName">Full name</Label>
+              <Label htmlFor="username">Username</Label>
               <Input
-                id="fullName"
-                name="fullName"
-                placeholder="John Doe"
-                value={formData.fullName}
+                id="username"
+                name="username"
+                placeholder="JohnDoe"
+                value={formData.username}
                 onChange={handleChange}
                 required
               />
-              {errors.fullName && (
-                <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
+              {errors.username && (
+                <p className="text-red-500 text-xs mt-1">{errors.username}</p>
               )}
             </div>
             <div className="space-y-2">
