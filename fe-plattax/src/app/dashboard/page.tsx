@@ -2,11 +2,16 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import Sidebar from "@/components/Sidebar"; 
+import Sidebar from "@/components/Sidebar";
 
 export default function DetectPlat() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Track the submitting state
+  const [detectionResult, setDetectionResult] = useState<{
+    plat_nomor: string;
+    tanggal_pajak: string;
+    confidence: number;
+  } | null>(null); // Store detection result
 
   // Handle the image upload
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -28,17 +33,22 @@ export default function DetectPlat() {
     formData.append("file", selectedImage);
 
     try {
-      const response = await fetch("http://localhost:8000/upload", {
+      const response = await fetch("http://127.0.0.1:8000/detect/", {
         method: "POST",
         body: formData,
       });
 
       if (response.ok) {
-        // Handle success (e.g., show a success message or redirect)
-        alert("Image successfully submitted!");
+        const data = await response.json(); // Parse the JSON response
+        if (data.results && data.results.length > 0) {
+          const result = data.results[0];
+          setDetectionResult(result);
+        } else {
+          alert("No results found in the response.");
+        }
       } else {
-        // Handle error (e.g., show an error message)
-        alert("Error submitting image.");
+        const errorData = await response.json(); // Parse error details if available
+        alert(`Error submitting image: ${errorData.detail || "Unknown error"}`);
       }
     } catch (error) {
       console.error("Error submitting image:", error);
@@ -61,7 +71,8 @@ export default function DetectPlat() {
             Detect Plat Number
           </h1>
           <p className="text-lg text-gray-500 mb-8">
-            Please upload an image of the vehicle’s license plate to detect the number.
+            Please upload an image of the vehicle’s license plate to detect the
+            number.
           </p>
 
           {/* Illustration */}
@@ -86,7 +97,7 @@ export default function DetectPlat() {
             className="hidden"
             onChange={handleImageUpload}
           />
-
+          <div></div>
           {/* Image Preview */}
           {selectedImage && (
             <>
@@ -104,12 +115,33 @@ export default function DetectPlat() {
                 onClick={handleSubmit}
                 disabled={isSubmitting}
                 className={`mt-6 bg-green-600 text-white py-2 px-6 rounded-lg text-lg font-bold transition-all duration-200 hover:shadow-xl ${
-                  isSubmitting ? "opacity-50 cursor-not-allowed" : "hover:scale-105"
+                  isSubmitting
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:scale-105"
                 }`}
               >
                 {isSubmitting ? "Processing..." : "Submit/Process Image"}
               </button>
             </>
+          )}
+
+          {/* Display Detection Result */}
+          {detectionResult && (
+            <div className="mt-8 p-4 bg-gray-100 rounded-lg shadow-md">
+              <h2 className="text-xl font-bold text-gray-800 mb-4">
+                Detection Result
+              </h2>
+              <p className="text-gray-700">
+                <strong>Plate Number:</strong> {detectionResult.plat_nomor}
+              </p>
+              <p className="text-gray-700">
+                <strong>Tax Date:</strong> {detectionResult.tanggal_pajak}
+              </p>
+              <p className="text-gray-700">
+                <strong>Confidence:</strong>{" "}
+                {(detectionResult.confidence * 100).toFixed(2)}%
+              </p>
+            </div>
           )}
         </div>
       </div>

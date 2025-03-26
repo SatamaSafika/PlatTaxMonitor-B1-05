@@ -5,3 +5,4 @@ numpy
 ultralytics
 easyocr
 torch
+fastapi[all]
