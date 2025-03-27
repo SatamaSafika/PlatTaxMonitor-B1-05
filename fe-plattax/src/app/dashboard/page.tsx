@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
+import { useRouter } from "next/navigation"; // Import useRouter
 
 export default function DetectPlat() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -12,6 +13,8 @@ export default function DetectPlat() {
     tanggal_pajak: string;
     confidence: number;
   } | null>(null); // Store detection result
+  const [showPopup, setShowPopup] = useState(false); // Control popup visibility
+  const router = useRouter(); // Initialize the router
 
   // Handle the image upload
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,6 +46,7 @@ export default function DetectPlat() {
         if (data.results && data.results.length > 0) {
           const result = data.results[0];
           setDetectionResult(result);
+          setShowPopup(true); // Show the popup
         } else {
           alert("No results found in the response.");
         }
@@ -98,6 +102,7 @@ export default function DetectPlat() {
             onChange={handleImageUpload}
           />
           <div></div>
+
           {/* Image Preview */}
           {selectedImage && (
             <>
@@ -125,22 +130,50 @@ export default function DetectPlat() {
             </>
           )}
 
-          {/* Display Detection Result */}
-          {detectionResult && (
-            <div className="mt-8 p-4 bg-gray-100 rounded-lg shadow-md">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">
-                Detection Result
-              </h2>
-              <p className="text-gray-700">
-                <strong>Plate Number:</strong> {detectionResult.plat_nomor}
-              </p>
-              <p className="text-gray-700">
-                <strong>Tax Date:</strong> {detectionResult.tanggal_pajak}
-              </p>
-              <p className="text-gray-700">
-                <strong>Confidence:</strong>{" "}
-                {(detectionResult.confidence * 100).toFixed(2)}%
-              </p>
+          {/* Display Popup */}
+          {showPopup && detectionResult && (
+            <div
+              className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-50 bg-opacity-50"
+              style={{ background: "rgba(0, 0, 0, 0.3)", pointerEvents: "none" }} // Adds slight background opacity
+            >
+              <div
+                className="relative bg-white border border-gray-300 rounded-lg shadow-2xl p-10 w-96 max-w-full"
+                style={{ pointerEvents: "auto" }} // Allow interaction with popup
+              >
+                {/* Close Button */}
+                <button
+                  className="absolute top-2 right-2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowPopup(false)}
+                >
+                  ✖️
+                </button>
+
+                {/* Detection Result */}
+                <h2 className="text-2xl font-extrabold text-gray-800 mb-6 text-center">
+                  Detection Result
+                </h2>
+                <p className="text-lg text-gray-700 mb-2">
+                  <strong>Plate Number:</strong> {detectionResult.plat_nomor}
+                </p>
+                <p className="text-lg text-gray-700 mb-2">
+                  <strong>Tax Date:</strong> {detectionResult.tanggal_pajak}
+                </p>
+                <p className="text-lg text-gray-700 mb-6">
+                  <strong>Confidence:</strong>{" "}
+                  {(detectionResult.confidence * 100).toFixed(2)}%
+                </p>
+
+                {/* Okay Button */}
+                <button
+                  onClick={() => {
+                    setShowPopup(false);
+                    router.push("/record"); // Redirect to plat record page
+                  }}
+                  className="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg text-lg font-bold transition-all duration-300"
+                >
+                  Okay
+                </button>
+              </div>
             </div>
           )}
         </div>

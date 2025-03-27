@@ -17,40 +17,44 @@ export default function RecordPage() {
     { id: 9, plate: 'STU123', owner: 'Laura Martinez', taxDate: 'Some Info', violation: 'Details' }, // Untuk trigger scroll
   ]);
 
-  useEffect(() => {
-    // Simulasi fetch data dari NeonDB (nantinya akan diaktifkan)
-  }, []);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsOpen(!isOpen);
+  };
 
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
-      <Sidebar />
+      <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
 
-      <div className="flex-grow p-6 bg-gray-100"> {/* This ensures the content fills the rest of the screen */}
-        <div className="w-full flex flex-col items-center">  
-          {/* Container judul & icon */}
+      {/* Main Content */}
+      <div
+        className={`transition-all duration-300 flex-grow p-6 bg-gray-100 ${isOpen ? 'ml-64' : 'ml-20'}`}
+      >
+        <div className="w-full flex flex-col items-center">
+          {/* Header */}
           <div className="flex items-center gap-4 mb-6 text-center">
-            {/* Icon tetap sendiri */}
             <Image src="/icons/record-icon.png" alt="Record Icon" width={130} height={130} />
-            
-            {/* Teks "Record" dengan background image */}
-            <span className="text-2xl font-bold text-white px-8 py-3 bg-cover bg-center ml-[-36px] mt-[30px] min-w-[200px]"
-                  style={{ 
-                    backgroundImage: "url('/icons/title-bg.png')",
-                    backgroundSize: "200% 70%", // Perbesar background
-                    backgroundRepeat: "no-repeat",
-                    backgroundPosition: "left center", // Pastikan posisi sesuai
-                    display: "inline-block",
-                    color: "#FFFFFF" // Warna teks putih
-                  }}>
+            <span
+              className="text-2xl font-bold text-white px-8 py-3 bg-cover bg-center ml-[-36px] mt-[30px] min-w-[200px]"
+              style={{
+                backgroundImage: "url('/icons/title-bg.png')",
+                backgroundSize: '200% 70%',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'left center',
+                display: 'inline-block',
+                color: '#FFFFFF',
+              }}
+            >
               Record
             </span>
           </div>
 
-          {/* Container tabel dengan scroll */}
-          <div className="w-4/5 bg-white shadow-md rounded-lg overflow-hidden">
+          {/* Table Container */}
+          <div className="w-full max-w-5xl bg-white shadow-md rounded-lg overflow-hidden">
             <div className="max-h-[calc(9*2.5rem)] overflow-y-auto">
-              <table className="w-full text-center border-collapse table-fixed">
+              <table className="w-full text-center border-collapse">
                 <thead className="sticky top-0 bg-[#50B1EB] text-white">
                   <tr className="h-10">
                     <th className="p-2 w-[10%]">No</th>
