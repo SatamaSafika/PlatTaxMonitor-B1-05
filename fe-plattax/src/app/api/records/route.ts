@@ -9,21 +9,17 @@ const pool = new Pool({
 export async function GET() {
   try {
     const client = await pool.connect();
-    
-    const query = `
-      SELECT 
-        k.plat_nomor AS plate, 
-        k.nama_pemilik AS owner, 
-        k.tanggal_pajak_berlakutahunan AS taxDate, 
-        t.nilai_tagihan AS violation
-      FROM deteksi_record d
-      LEFT JOIN kendaraan k ON d.plat_nomor = k.plat_nomor
-      LEFT JOIN tagihan_pajak t ON d.plat_nomor = t.plat_nomor
-    `;
+
+    const query = `SELECT * FROM view_kendaraan_pajak_terdeteksi;`;
+
 
     const res = await client.query(query);
+
+    // ✅ Tambahkan console.log ini untuk debug
+    console.log('Fetched Records:', res.rows); // Ini akan muncul di terminal/server log
+
     client.release();
-    
+
     return NextResponse.json(res.rows);
   } catch (err) {
     console.error('DB error:', err);
