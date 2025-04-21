@@ -1,9 +1,9 @@
-"use client"; 
+"use client";
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu } from "lucide-react"; 
+import { Menu } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 interface SidebarProps {
@@ -52,7 +52,7 @@ export default function Sidebar({ forceClose }: SidebarProps) {
 
       {/* Sidebar */}
       <div
-        style={{ backgroundColor: darkNavy }} 
+        style={{ backgroundColor: darkNavy }}
         className={`${
           isOpen ? "w-64" : "w-0"
         } flex flex-col h-screen p-4 transition-all duration-300 overflow-hidden`}
@@ -75,27 +75,33 @@ export default function Sidebar({ forceClose }: SidebarProps) {
             {/* Menu */}
             <div className="flex flex-col gap-8">
               {/* Dashboard (Detect Plat renamed) */}
-              <Link href="/dashboard" legacyBehavior>
-                <a className="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg transition-all transform hover:scale-105"> {/* Increased button height */}
-                  <Image
-                    src="/PAKEINI/[2]DetectPlat.png"
-                    alt="Detect Plat"
-                    width={40}
-                    height={40}
-                    className="mr-2"
-                  />
-                  <span className="font-bold text-xl">Detect Plat</span>
-                </a>
+              <Link
+                href="/dashboard"
+                className="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg transition-all transform hover:scale-105"
+              >
+                {" "}
+                {/* Increased button height */}
+                <Image
+                  src="/PAKEINI/[2]DetectPlat.png"
+                  alt="Detect Plat"
+                  width={40}
+                  height={40}
+                  className="mr-2"
+                />
+                <span className="font-bold text-xl">Detect Plat</span>
               </Link>
 
               {/* Plat Record with click event */}
               <button
                 onClick={handlePlatRecordClick}
-                className="flex items-center justify-center bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-lg transition-all transform hover:scale-105"> {/* Increased button height */}
+                className="flex items-center justify-center bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-lg transition-all transform hover:scale-105"
+              >
+                {" "}
+                {/* Increased button height */}
                 <Image
                   src="/PAKEINI/[3]PlatRecord.png"
                   alt="Plat Record"
-                  width={50} 
+                  width={50}
                   height={50}
                   className="mr-2"
                 />
@@ -105,11 +111,14 @@ export default function Sidebar({ forceClose }: SidebarProps) {
               {/* Profile */}
               <button
                 onClick={handleProfileClick}
-                className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg transition-all transform hover:scale-105"> {/* Increased button height */}
+                className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg transition-all transform hover:scale-105"
+              >
+                {" "}
+                {/* Increased button height */}
                 <Image
                   src="/PAKEINI/[4]Profile.png"
                   alt="Profile"
-                  width={50} 
+                  width={50}
                   height={50}
                   className="mr-2"
                 />

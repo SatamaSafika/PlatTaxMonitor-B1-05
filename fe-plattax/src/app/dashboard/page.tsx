@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
+import Link from "next/link";
 
 export default function DetectPlat() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -85,18 +86,25 @@ export default function DetectPlat() {
           />
 
           {/* Upload Button */}
-          <label htmlFor="imageUpload" className="cursor-pointer">
-            <div className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-4 px-8 rounded-lg text-lg font-bold transition-all duration-300 hover:shadow-xl transform hover:scale-105">
-              Upload Your Photo Here!
-            </div>
-          </label>
-          <input
-            id="imageUpload"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleImageUpload}
-          />
+          <div className="flex flex-row items-center gap-4">
+            <Link href={"/detect"}>
+              <div className="flex items-center justify-center bg-emerald-400 hover:bg-emerald-700 text-white py-4 px-8 rounded-lg text-lg font-bold transition-all duration-300 hover:shadow-xl transform hover:scale-105">
+                Detect Now!
+              </div>
+            </Link>
+            <label htmlFor="imageUpload" className="cursor-pointer">
+              <div className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-4 px-8 rounded-lg text-lg font-bold transition-all duration-300 hover:shadow-xl transform hover:scale-105">
+                Upload Your Photo Here!
+              </div>
+            </label>
+            <input
+              id="imageUpload"
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
+          </div>
           <div></div>
           {/* Image Preview */}
           {selectedImage && (
