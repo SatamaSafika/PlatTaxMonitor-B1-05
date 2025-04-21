@@ -54,8 +54,8 @@ export default function RecordPage() {
             </span>
           </div>
 
-          {/* Container tabel dengan scroll */}
-          <div className="w-4/5 bg-white shadow-md rounded-lg overflow-hidden">
+          {/* Table Container */}
+          <div className="w-full max-w-5xl bg-white shadow-md rounded-lg overflow-hidden">
             <div className="max-h-[calc(9*2.5rem)] overflow-y-auto">
               {loading ? (
                 <div className="flex items-center justify-center p-4 space-x-2">
