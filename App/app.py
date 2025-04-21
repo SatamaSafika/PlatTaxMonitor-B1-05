@@ -15,7 +15,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-DATABASE_URL="postgresql://PlatTaxDB_owner:npg_W0d8pjznXmCD@ep-floral-glade-a8u0bxhe-pooler.eastus2.azure.neon.tech:5432/PlatTaxDB?sslmode=require"
+DATABASE_URL=os.getenv("DATABASE_URL")
 
 # Gunakan path dinamis
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
