@@ -22,23 +22,26 @@ model deteksi_record {
 }
 
 model kendaraan {
-  plat_nomor             String           @id @db.VarChar(15)
-  nama_pemilik           String?          @db.VarChar(100)
-  tanggal_pajak_berlaku  DateTime?        @db.Date
-  kategori_kendaraan     String?          @db.VarChar(50)
-  harga_pajak            Decimal?         @db.Decimal(10, 2)
-  email_pemilik          String?          @db.VarChar(100)
-  tanggal_pajak_terakhir String?          @db.VarChar(100)
-  deteksi_record         deteksi_record[]
-  tagihan_pajak          tagihan_pajak[]
+  plat_nomor                     String           @id @db.VarChar(15)
+  nama_pemilik                   String?          @db.VarChar(100)
+  kategori_kendaraan             String?          @db.VarChar(50)
+  harga_pajak                    Decimal?         @db.Decimal(10, 2)
+  email_pemilik                  String?          @db.VarChar(100)
+  tanggal_pajak_terakhir         String?          @db.VarChar(100)
+  tanggal_pajak_berlakutahunan   String?          @db.VarChar(100)  // Kolom yang sudah diganti namanya
+  tanggal_pajak_berlakulimatahunan String?       @db.VarChar(100)  // Kolom baru yang ditambahkan
+
+  deteksi_record                 deteksi_record[]
+  tagihan_pajak                  tagihan_pajak[]
+  @@unique([plat_nomor, tanggal_pajak_berlakutahunan])
 }
 
 model tagihan_pajak {
-  id_tagihan                  Int        @id @default(autoincrement())
-  bulan_pajak_berlaku         DateTime?  @db.Date
-  plat_nomor                  String?    @db.VarChar(15)
-  timestamp_pembuatan_tagihan DateTime?  @db.Timestamp(6)
-  durasi_keterlambatan        Int?
-  nilai_tagihan               Decimal?   @db.Decimal(10, 2)
-  kendaraan                   kendaraan? @relation(fields: [plat_nomor], references: [plat_nomor], onDelete: Cascade, onUpdate: NoAction)
+  id_tagihan                          Int        @id @default(autoincrement())
+  tanggal_pajak_berlakutahunan        String?    @db.VarChar(10)
+  plat_nomor                          String?    @db.VarChar(15)
+  timestamp_pembuatan_tagihan         DateTime?  @db.Timestamp(6)
+  durasi_keterlambatan                Int?
+  nilai_tagihan                       Decimal?   @db.Decimal(10, 2)
+  kendaraan   kendaraan? @relation(fields: [plat_nomor, tanggal_pajak_berlakutahunan], references: [plat_nomor, tanggal_pajak_berlakutahunan], onDelete: NoAction, onUpdate: NoAction)
 }

@@ -16,8 +16,9 @@ export async function GET() {
         k.nama_pemilik AS owner, 
         k.tanggal_pajak_berlakutahunan AS taxDate, 
         t.nilai_tagihan AS violation
-      FROM kendaraan k
-      LEFT JOIN tagihan_pajak t ON k.plat_nomor = t.plat_nomor
+      FROM deteksi_record d
+      LEFT JOIN kendaraan k ON d.plat_nomor = k.plat_nomor
+      LEFT JOIN tagihan_pajak t ON d.plat_nomor = t.plat_nomor
     `;
 
     const res = await client.query(query);
