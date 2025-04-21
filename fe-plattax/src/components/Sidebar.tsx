@@ -44,28 +44,19 @@ export default function Sidebar({ forceClose }: SidebarProps) {
       {/* Hamburger Icon (toggle button) */}
       <button
         onClick={toggleSidebar}
-        style={{ backgroundColor: darkNavy }}
-        className={`fixed top-4 ${isOpen ? 'left-[260px]' : 'left-6'} z-50 text-white p-2 rounded-lg transition-all duration-300`}
+        style={{ backgroundColor: darkNavy }} // Set inline style for background color
+        className="absolute top-4 -right-12 z-50 text-white p-2 rounded-lg"
       >
         <Menu size={24} />
       </button>
 
       {/* Sidebar */}
-<<<<<<< HEAD
-        <div
-          style={{ backgroundColor: darkNavy }} 
-          className={`${
-            isOpen ? "w-64" : "w-0"
-          } flex flex-col h-screen fixed top-0 left-0 p-4 transition-all duration-300 overflow-y-auto`}
-        >
-=======
       <div
         style={{ backgroundColor: darkNavy }}
         className={`${
           isOpen ? "w-64" : "w-0"
         } flex flex-col h-screen p-4 transition-all duration-300 overflow-hidden`}
       >
->>>>>>> a2ea9b0aca613e841b96b3065359265758431be1
         {isOpen && (
           <>
             {/* Logo */}
