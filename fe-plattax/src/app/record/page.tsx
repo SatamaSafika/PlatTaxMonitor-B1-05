@@ -2,23 +2,33 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import Sidebar from '@/components/Sidebar'; // Import the Sidebar component
+import Sidebar from '@/components/Sidebar';
+
+type Record = {
+  plate: string;
+  owner: string | null;
+  taxDate: string | null;
+  violation: string | null;
+};
 
 export default function RecordPage() {
-  const [records, setRecords] = useState([
-    { id: 1, plate: 'XYZ789', owner: 'Jane Smith', taxDate: 'Some Info', violation: 'Details' },
-    { id: 2, plate: 'ABC123', owner: 'John Doe', taxDate: 'Some Info', violation: 'Details' },
-    { id: 3, plate: 'LMN456', owner: 'Alice Brown', taxDate: 'Some Info', violation: 'Details' },
-    { id: 4, plate: 'DEF456', owner: 'Michael White', taxDate: 'Some Info', violation: 'Details' },
-    { id: 5, plate: 'GHI789', owner: 'Emily Johnson', taxDate: 'Some Info', violation: 'Details' },
-    { id: 6, plate: 'JKL123', owner: 'David Williams', taxDate: 'Some Info', violation: 'Details' },
-    { id: 7, plate: 'MNO456', owner: 'Sarah Brown', taxDate: 'Some Info', violation: 'Details' },
-    { id: 8, plate: 'PQR789', owner: 'Daniel Garcia', taxDate: 'Some Info', violation: 'Details' },
-    { id: 9, plate: 'STU123', owner: 'Laura Martinez', taxDate: 'Some Info', violation: 'Details' }, // Untuk trigger scroll
-  ]);
+  const [records, setRecords] = useState<Record[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulasi fetch data dari NeonDB (nantinya akan diaktifkan)
+    const fetchRecords = async () => {
+      try {
+        const res = await fetch('/api/records');
+        const data = await res.json();
+        setRecords(data);
+      } catch (err) {
+        console.error('Error fetching records:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecords();
   }, []);
 
   return (
@@ -26,22 +36,19 @@ export default function RecordPage() {
       {/* Sidebar */}
       <Sidebar />
 
-      <div className="flex-grow p-6 bg-gray-100"> {/* This ensures the content fills the rest of the screen */}
-        <div className="w-full flex flex-col items-center">  
+      <div className="flex-grow p-6 bg-gray-100">
+        <div className="w-full flex flex-col items-center">
           {/* Container judul & icon */}
           <div className="flex items-center gap-4 mb-6 text-center">
-            {/* Icon tetap sendiri */}
             <Image src="/icons/record-icon.png" alt="Record Icon" width={130} height={130} />
-            
-            {/* Teks "Record" dengan background image */}
             <span className="text-2xl font-bold text-white px-8 py-3 bg-cover bg-center ml-[-36px] mt-[30px] min-w-[200px]"
-                  style={{ 
+                  style={{
                     backgroundImage: "url('/icons/title-bg.png')",
-                    backgroundSize: "200% 70%", // Perbesar background
+                    backgroundSize: "200% 70%",
                     backgroundRepeat: "no-repeat",
-                    backgroundPosition: "left center", // Pastikan posisi sesuai
+                    backgroundPosition: "left center",
                     display: "inline-block",
-                    color: "#FFFFFF" // Warna teks putih
+                    color: "#FFFFFF"
                   }}>
               Record
             </span>
@@ -50,32 +57,79 @@ export default function RecordPage() {
           {/* Container tabel dengan scroll */}
           <div className="w-4/5 bg-white shadow-md rounded-lg overflow-hidden">
             <div className="max-h-[calc(9*2.5rem)] overflow-y-auto">
-              <table className="w-full text-center border-collapse table-fixed">
-                <thead className="sticky top-0 bg-[#50B1EB] text-white">
-                  <tr className="h-10">
-                    <th className="p-2 w-[10%]">No</th>
-                    <th className="p-2 w-[20%]">Plat Number</th>
-                    <th className="p-2 w-[25%]">Owner Name</th>
-                    <th className="p-2 w-[20%]">Tax Date</th>
-                    <th className="p-2 w-[25%]">Violation Bill</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {records.map((record, index) => (
-                    <tr key={record.id} className="border-b hover:bg-gray-100 h-10">
-                      <td className="p-2">{index + 1}</td>
-                      <td className="p-2">{record.plate}</td>
-                      <td className="p-2">{record.owner}</td>
-                      <td className="p-2">{record.taxDate}</td>
-                      <td className="p-2">{record.violation}</td>
+              {loading ? (
+                <div className="flex items-center justify-center p-4 space-x-2">
+                  <span className="dot"></span>
+                  <span className="dot"></span>
+                  <span className="dot"></span>
+                </div>
+              ) : (
+                <table className="w-full text-center border-collapse table-fixed">
+                  <thead className="sticky top-0 bg-[#50B1EB] text-white">
+                    <tr className="h-10">
+                      <th className="p-2 w-[10%]">No</th>
+                      <th className="p-2 w-[20%]">Plat Number</th>
+                      <th className="p-2 w-[25%]">Owner Name</th>
+                      <th className="p-2 w-[20%]">Tax Date</th>
+                      <th className="p-2 w-[25%]">Violation Bill</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {records.length > 0 ? (
+                      records.map((record, index) => (
+                        <tr 
+                          key={index} 
+                          className={`hover:bg-gray-100 h-10 ${index === records.length - 1 ? '' : 'border-b'}`}
+                        >
+                          <td className="p-2">{index + 1}</td>
+                          <td className="p-2">{record.plate}</td>
+                          <td className="p-2">{record.owner ?? '-'}</td>
+                          <td className="p-2">{record.taxDate && record.taxDate !== '-' ? record.taxDate : '-'}</td>
+                          <td className="p-2">{record.violation ? `Rp ${parseFloat(record.violation).toLocaleString()}` : '-'}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="p-4 text-center text-gray-500">No data available</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* CSS untuk animasi titik bergelombang */}
+      <style jsx>{`
+        .dot {
+          width: 10px;
+          height: 10px;
+          background-color: black;
+          border-radius: 50%;
+          animation: wave 1.2s infinite ease-in-out;
+        }
+
+        .dot:nth-child(1) {
+          animation-delay: 0s;
+        }
+        .dot:nth-child(2) {
+          animation-delay: 0.2s;
+        }
+        .dot:nth-child(3) {
+          animation-delay: 0.4s;
+        }
+
+        @keyframes wave {
+          0%, 80%, 100% {
+            transform: translateY(0);
+          }
+          40% {
+            transform: translateY(-8px);
+          }
+        }
+      `}</style>
     </div>
   );
 }
