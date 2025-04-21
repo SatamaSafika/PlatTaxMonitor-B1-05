@@ -15,13 +15,6 @@ export default function RecordPage() {
   const [records, setRecords] = useState<Record[]>([]);
   const [loading, setLoading] = useState(true);
 
-<<<<<<< HEAD
-  const [isOpen, setIsOpen] = useState(false);
-
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
-=======
   useEffect(() => {
     const fetchRecords = async () => {
       try {
@@ -37,34 +30,12 @@ export default function RecordPage() {
 
     fetchRecords();
   }, []);
->>>>>>> a7a0a2577d911a12d39f3d6eb1e3b86960644ce4
 
   return (
     <div className="flex min-h-screen">
       {/* Sidebar */}
-      <Sidebar isOpen={isOpen} toggleSidebar={toggleSidebar} />
+      <Sidebar />
 
-<<<<<<< HEAD
-      {/* Main Content */}
-      <div
-        className={`transition-all duration-300 flex-grow p-6 bg-gray-100 ${isOpen ? 'ml-64' : 'ml-20'}`}
-      >
-        <div className="w-full flex flex-col items-center">
-          {/* Header */}
-          <div className="flex items-center gap-4 mb-6 text-center">
-            <Image src="/icons/record-icon.png" alt="Record Icon" width={130} height={130} />
-            <span
-              className="text-2xl font-bold text-white px-8 py-3 bg-cover bg-center ml-[-36px] mt-[30px] min-w-[200px]"
-              style={{
-                backgroundImage: "url('/icons/title-bg.png')",
-                backgroundSize: '200% 70%',
-                backgroundRepeat: 'no-repeat',
-                backgroundPosition: 'left center',
-                display: 'inline-block',
-                color: '#FFFFFF',
-              }}
-            >
-=======
       <div className="flex-grow p-6 bg-gray-100">
         <div className="w-full flex flex-col items-center">
           {/* Container judul & icon */}
@@ -79,7 +50,6 @@ export default function RecordPage() {
                     display: "inline-block",
                     color: "#FFFFFF"
                   }}>
->>>>>>> a7a0a2577d911a12d39f3d6eb1e3b86960644ce4
               Record
             </span>
           </div>
@@ -87,26 +57,6 @@ export default function RecordPage() {
           {/* Table Container */}
           <div className="w-full max-w-5xl bg-white shadow-md rounded-lg overflow-hidden">
             <div className="max-h-[calc(9*2.5rem)] overflow-y-auto">
-<<<<<<< HEAD
-              <table className="w-full text-center border-collapse">
-                <thead className="sticky top-0 bg-[#50B1EB] text-white">
-                  <tr className="h-10">
-                    <th className="p-2 w-[10%]">No</th>
-                    <th className="p-2 w-[20%]">Plat Number</th>
-                    <th className="p-2 w-[25%]">Owner Name</th>
-                    <th className="p-2 w-[20%]">Tax Date</th>
-                    <th className="p-2 w-[25%]">Violation Bill</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {records.map((record, index) => (
-                    <tr key={record.id} className="border-b hover:bg-gray-100 h-10">
-                      <td className="p-2">{index + 1}</td>
-                      <td className="p-2">{record.plate}</td>
-                      <td className="p-2">{record.owner}</td>
-                      <td className="p-2">{record.taxDate}</td>
-                      <td className="p-2">{record.violation}</td>
-=======
               {loading ? (
                 <div className="flex items-center justify-center p-4 space-x-2">
                   <span className="dot"></span>
@@ -122,7 +72,6 @@ export default function RecordPage() {
                       <th className="p-2 w-[25%]">Owner Name</th>
                       <th className="p-2 w-[20%]">Tax Date</th>
                       <th className="p-2 w-[25%]">Violation Bill</th>
->>>>>>> a7a0a2577d911a12d39f3d6eb1e3b86960644ce4
                     </tr>
                   </thead>
                   <tbody>
