@@ -12,10 +12,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 import os
-from dotenv import load_dotenv
-load_dotenv()
+from dotenv import load_dotenv, dotenv_values
+load_dotenv("App/.env")
 
-DATABASE_URL=os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL")
+print(DATABASE_URL)
 
 # Gunakan path dinamis
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

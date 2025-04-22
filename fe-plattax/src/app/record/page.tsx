@@ -7,7 +7,7 @@ import Sidebar from '@/components/Sidebar';
 type Record = {
   plate: string;
   owner: string | null;
-  taxDate: string | null;
+  taxdate: string | null;
   violation: string | null;
 };
 
@@ -84,7 +84,15 @@ export default function RecordPage() {
                           <td className="p-2">{index + 1}</td>
                           <td className="p-2">{record.plate}</td>
                           <td className="p-2">{record.owner ?? '-'}</td>
-                          <td className="p-2">{record.taxDate && record.taxDate !== '-' ? record.taxDate : '-'}</td>
+                          <td className="p-2">
+                            {record.taxdate?.trim() && !isNaN(new Date(record.taxdate).getTime())
+                              ? new Date(record.taxdate).toLocaleDateString('id-ID', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                })
+                              : 'Data Tidak Tersedia'}
+                          </td>
                           <td className="p-2">{record.violation ? `Rp ${parseFloat(record.violation).toLocaleString()}` : '-'}</td>
                         </tr>
                       ))
