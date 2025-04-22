@@ -2,22 +2,21 @@
 
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Lock, LogOut } from "lucide-react";
-import Sidebar from "@/components/Sidebar";
-import { useState } from "react";
+import Sidebar from "@/components/Sidebar"; // Pastikan Sidebar ini ada dan sudah diimport
 
 export default function ProfilePage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const username = session?.user?.name || "User";
 
-  // Modal state
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-
-  // Logout function
-  const handleLogout = async () => {
-    console.log("Logging out...");
-    await signOut({ callbackUrl: "/login" });
+  const handleLogout = () => {
+    const confirmLogout = window.confirm("Apakah Anda yakin ingin keluar?");
+    if (confirmLogout) {
+      signOut({ callbackUrl: "/login" });
+    }
   };
 
   return (
@@ -25,7 +24,7 @@ export default function ProfilePage() {
       {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
+      {/* Main Profile Section */}
       <div className="flex-1 p-10 flex flex-col items-center gap-10">
         {/* Profile Picture */}
         <Image
@@ -41,6 +40,7 @@ export default function ProfilePage() {
 
         {/* Edit Password Button */}
         <Button
+          onClick={() => router.push("/editpassword")}
           className="p-6 text-2xl flex gap-4 items-center text-white bg-cover bg-center font-bold transition duration-200 hover:scale-105 hover:brightness-110"
           style={{
             backgroundImage: "url('/icons/title-bg.png')",
@@ -53,43 +53,12 @@ export default function ProfilePage() {
 
         {/* Log Out Button */}
         <Button
-          onClick={() => {
-            console.log("Open logout confirmation modal");
-            setShowLogoutModal(true);
-          }}
+          onClick={handleLogout}
           className="p-6 text-2xl flex gap-4 items-center text-white bg-red-600 hover:bg-red-700 transition duration-200 hover:scale-105 hover:brightness-110"
         >
           <LogOut size={48} /> Log Out
         </Button>
       </div>
-
-      {/* Modal Konfirmasi Logout */}
-      {showLogoutModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-8 w-[90%] max-w-md text-center space-y-6">
-            <h2 className="text-3xl font-semibold text-gray-800">
-              Apakah Anda yakin ingin keluar?
-            </h2>
-            <div className="flex justify-center gap-6 mt-6">
-              <Button
-                onClick={() => {
-                  console.log("Cancel logout");
-                  setShowLogoutModal(false);
-                }}
-                className="bg-gray-300 text-gray-800 hover:bg-gray-400 px-6 py-3 text-lg"
-              >
-                Batal
-              </Button>
-              <Button
-                onClick={handleLogout}
-                className="bg-red-600 text-white hover:bg-red-700 px-6 py-3 text-lg"
-              >
-                Ya, Keluar
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
