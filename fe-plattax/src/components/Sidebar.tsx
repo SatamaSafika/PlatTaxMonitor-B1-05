@@ -28,12 +28,12 @@ export default function Sidebar({ forceClose }: SidebarProps) {
 
   // Redirect logic for Plat Record
   const handlePlatRecordClick = () => {
-    window.location.href = "http://localhost:3000/record";
+    window.location.href = "/record";
   };
 
   // Redirect logic for Profile
   const handleProfileClick = () => {
-    window.location.href = "http://localhost:3000/profile";
+    window.location.href = "/profile";
   };
 
   // Color palette from the image you provided
