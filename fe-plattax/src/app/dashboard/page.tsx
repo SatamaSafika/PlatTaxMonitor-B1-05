@@ -4,8 +4,21 @@ import Image from "next/image";
 import { useState } from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 export default function DetectPlat() {
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "loading") return; // Don't redirect while checking session
+    if (!session) {
+      router.push("/login");
+    }
+  }, [session, router]);
+
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // Track the submitting state
   const [detectionResult, setDetectionResult] = useState<{
