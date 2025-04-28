@@ -25,4 +25,4 @@ jobs:
           context: ./App # <--- karena Dockerfile ada di App
           file: ./App/Dockerfile # <--- lokasi Dockerfile-nya
           push: true
-          tags: yourdockerhubusername/yourimagename:latest
+          tags: johanpramudito/fastapi-backend:latest
