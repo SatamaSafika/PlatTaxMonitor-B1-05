@@ -25,8 +25,9 @@ export const authOptions: NextAuthOptions = {
         try {
           const { user } = await login(credentials.email, credentials.password);
           return {
-            id: user.id,
+            id: user.id_pengguna.toString(),
             email: user.email,
+            name: user.username,
           };
         } catch (error) {
           console.error("Auth error:", error);
