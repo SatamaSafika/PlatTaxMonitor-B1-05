@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       {
         success: true,
         user: {
-          id: user.id,
+          id: user.id_pengguna,
           email: user.email,
           username: user.username,
         },
