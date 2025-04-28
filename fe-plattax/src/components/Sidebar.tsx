@@ -40,7 +40,7 @@ export default function Sidebar({ forceClose }: SidebarProps) {
   const darkNavy: string = "#030117";
 
   return (
-    <div className="relative flex">
+    <div className="fixed top-0 left-0 h-screen z-50 flex">
       {/* Hamburger Icon (toggle button) */}
       <button
         onClick={toggleSidebar}
