@@ -10,10 +10,10 @@ export default function DetectPlat() {
   const [isSubmitting, setIsSubmitting] = useState(false); // Track the submitting state
   const [detectionResult, setDetectionResult] = useState<{
     plat_nomor: string;
-    tanggal_pajak: string;
+    bulan_tahun_pajak: string;
     confidence: number;
-  } | null>(null); // Store detection result
-
+  } | null>(null);
+  
   // Handle the image upload
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -60,7 +60,7 @@ export default function DetectPlat() {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex min-h-screen">
       {/* Sidebar Component */}
       <Sidebar />
 
@@ -143,7 +143,7 @@ export default function DetectPlat() {
                 <strong>Plate Number:</strong> {detectionResult.plat_nomor}
               </p>
               <p className="text-gray-700">
-                <strong>Tax Date:</strong> {detectionResult.tanggal_pajak}
+                <strong>Tax Date:</strong> {detectionResult.bulan_tahun_pajak}
               </p>
               <p className="text-gray-700">
                 <strong>Confidence:</strong>{" "}
