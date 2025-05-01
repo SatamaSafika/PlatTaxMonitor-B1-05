@@ -7,21 +7,17 @@ import Link from "next/link";
 
 export default function DetectPlat() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Track the submitting state
-  const [detectionResult, setDetectionResult] = useState<{
-    plat_nomor: string;
-    bulan_tahun_pajak: string;
-    confidence: number;
-  } | null>(null);
-  
-  // Handle the image upload
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [detectionResults, setDetectionResults] = useState<
+    { plat_nomor: string; bulan_tahun_pajak: string }[]
+  >([]);
+
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       setSelectedImage(event.target.files[0]);
     }
   };
 
-  // Handle form submission to send the image to FastAPI backend
   const handleSubmit = async () => {
     if (!selectedImage) {
       alert("Please upload an image first!");
@@ -40,15 +36,18 @@ export default function DetectPlat() {
       });
 
       if (response.ok) {
-        const data = await response.json(); // Parse the JSON response
+        const data = await response.json();
         if (data.results && data.results.length > 0) {
-          const result = data.results[0];
-          setDetectionResult(result);
+          const formattedResults = data.results.map((item: any) => ({
+            plat_nomor: item.plat_nomor,
+            bulan_tahun_pajak: item.bulan_tahun_pajak,
+          }));
+          setDetectionResults(formattedResults);
         } else {
           alert("No results found in the response.");
         }
       } else {
-        const errorData = await response.json(); // Parse error details if available
+        const errorData = await response.json();
         alert(`Error submitting image: ${errorData.detail || "Unknown error"}`);
       }
     } catch (error) {
@@ -61,13 +60,10 @@ export default function DetectPlat() {
 
   return (
     <div className="flex min-h-screen">
-      {/* Sidebar Component */}
       <Sidebar />
 
-      {/* Main Content */}
       <div className="flex flex-col flex-grow items-center justify-center bg-gray-100">
         <div className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg">
-          {/* High-fidelity Text */}
           <h1 className="text-3xl font-bold mb-4 text-gray-800">
             Detect Plat Number
           </h1>
@@ -76,16 +72,14 @@ export default function DetectPlat() {
             number.
           </p>
 
-          {/* Illustration */}
           <Image
-            src="/PAKEINI/[6]UploadGambar.png" // Path to your image
+            src="/PAKEINI/[6]UploadGambar.png"
             alt="Upload Illustration"
             width={300}
             height={300}
             className="mb-8"
           />
 
-          {/* Upload Button */}
           <div className="flex flex-row items-center gap-4">
             <Link href={"/detect"}>
               <div className="flex items-center justify-center bg-emerald-400 hover:bg-emerald-700 text-white py-4 px-8 rounded-lg text-lg font-bold transition-all duration-300 hover:shadow-xl transform hover:scale-105">
@@ -105,8 +99,7 @@ export default function DetectPlat() {
               onChange={handleImageUpload}
             />
           </div>
-          <div></div>
-          {/* Image Preview */}
+
           {selectedImage && (
             <>
               <div className="mt-6">
@@ -118,7 +111,6 @@ export default function DetectPlat() {
                 />
               </div>
 
-              {/* Submit Button */}
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
@@ -133,22 +125,21 @@ export default function DetectPlat() {
             </>
           )}
 
-          {/* Display Detection Result */}
-          {detectionResult && (
-            <div className="mt-8 p-4 bg-gray-100 rounded-lg shadow-md">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">
+          {detectionResults.length > 0 && (
+            <div className="mt-8 p-4 bg-gray-100 rounded-lg shadow-md w-full max-w-md">
+              <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">
                 Detection Result
               </h2>
-              <p className="text-gray-700">
-                <strong>Plate Number:</strong> {detectionResult.plat_nomor}
-              </p>
-              <p className="text-gray-700">
-                <strong>Tax Date:</strong> {detectionResult.bulan_tahun_pajak}
-              </p>
-              <p className="text-gray-700">
-                <strong>Confidence:</strong>{" "}
-                {(detectionResult.confidence * 100).toFixed(2)}%
-              </p>
+              {detectionResults.map((result, index) => (
+                <div key={index} className="mb-4 p-2 border-b border-gray-300">
+                  <p className="text-gray-700">
+                    <strong>Plate Number:</strong> {result.plat_nomor}
+                  </p>
+                  <p className="text-gray-700">
+                    <strong>Tax Date:</strong> {result.bulan_tahun_pajak}
+                  </p>
+                </div>
+              ))}
             </div>
           )}
         </div>
