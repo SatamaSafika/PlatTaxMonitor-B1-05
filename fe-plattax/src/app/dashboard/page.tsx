@@ -38,7 +38,7 @@ export default function DetectPlat() {
       if (response.ok) {
         const data = await response.json();
         if (data.results && data.results.length > 0) {
-          const formattedResults = data.results.map((item: any) => ({
+          const formattedResults = data.results.map((item: { plat_nomor: string; bulan_tahun_pajak: string }) => ({
             plat_nomor: item.plat_nomor,
             bulan_tahun_pajak: item.bulan_tahun_pajak,
           }));
@@ -104,10 +104,12 @@ export default function DetectPlat() {
             <>
               <div className="mt-6">
                 <p className="text-center text-gray-500 mb-4">Preview:</p>
-                <img
+                <Image
                   src={URL.createObjectURL(selectedImage)}
                   alt="Uploaded Preview"
-                  className="w-64 h-64 object-cover rounded-lg shadow-md"
+                  width={256}
+                  height={256}
+                  className="object-cover rounded-lg shadow-md"
                 />
               </div>
 
@@ -126,12 +128,15 @@ export default function DetectPlat() {
           )}
 
           {detectionResults.length > 0 && (
-            <div className="mt-8 p-4 bg-gray-100 rounded-lg shadow-md w-full max-w-md">
-              <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">
-                Detection Result
-              </h2>
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
               {detectionResults.map((result, index) => (
-                <div key={index} className="mb-4 p-2 border-b border-gray-300">
+                <div
+                  key={index}
+                  className="p-4 bg-white rounded-lg shadow-md border border-gray-300"
+                >
+                  <h2 className="text-lg font-bold text-gray-800 mb-2 text-center">
+                    Detection Result {index + 1}
+                  </h2>
                   <p className="text-gray-700">
                     <strong>Plate Number:</strong> {result.plat_nomor}
                   </p>
