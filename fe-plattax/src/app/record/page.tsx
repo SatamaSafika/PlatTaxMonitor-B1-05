@@ -1,10 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import Sidebar from "@/components/Sidebar";
-import { useSession } from "next-auth/react";
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Sidebar from '@/components/Sidebar';
 
 type Record = {
   plate: string;
@@ -14,27 +12,17 @@ type Record = {
 };
 
 export default function RecordPage() {
-  const { data: session } = useSession();
   const [records, setRecords] = useState<Record[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const router = useRouter();
-
-  useEffect(() => {
-    if (status === "loading") return; // Don't redirect while checking session
-    if (!session) {
-      router.push("/login");
-    }
-  }, [session, router]);
 
   useEffect(() => {
     const fetchRecords = async () => {
       try {
-        const res = await fetch("/api/records");
+        const res = await fetch('/api/records');
         const data = await res.json();
         setRecords(data);
       } catch (err) {
-        console.error("Error fetching records:", err);
+        console.error('Error fetching records:', err);
       } finally {
         setLoading(false);
       }
@@ -52,23 +40,16 @@ export default function RecordPage() {
         <div className="w-full flex flex-col items-center">
           {/* Container judul & icon */}
           <div className="flex items-center gap-4 mb-6 text-center">
-            <Image
-              src="/icons/record-icon.png"
-              alt="Record Icon"
-              width={130}
-              height={130}
-            />
-            <span
-              className="text-2xl font-bold text-white px-8 py-3 bg-cover bg-center ml-[-36px] mt-[30px] min-w-[200px]"
-              style={{
-                backgroundImage: "url('/icons/title-bg.png')",
-                backgroundSize: "200% 70%",
-                backgroundRepeat: "no-repeat",
-                backgroundPosition: "left center",
-                display: "inline-block",
-                color: "#FFFFFF",
-              }}
-            >
+            <Image src="/icons/record-icon.png" alt="Record Icon" width={130} height={130} />
+            <span className="text-2xl font-bold text-white px-8 py-3 bg-cover bg-center ml-[-36px] mt-[30px] min-w-[200px]"
+                  style={{
+                    backgroundImage: "url('/icons/title-bg.png')",
+                    backgroundSize: "200% 70%",
+                    backgroundRepeat: "no-repeat",
+                    backgroundPosition: "left center",
+                    display: "inline-block",
+                    color: "#FFFFFF"
+                  }}>
               Record
             </span>
           </div>
@@ -96,45 +77,28 @@ export default function RecordPage() {
                   <tbody>
                     {records.length > 0 ? (
                       records.map((record, index) => (
-                        <tr
-                          key={index}
-                          className={`hover:bg-gray-100 h-10 ${
-                            index === records.length - 1 ? "" : "border-b"
-                          }`}
+                        <tr 
+                          key={index} 
+                          className={`hover:bg-gray-100 h-10 ${index === records.length - 1 ? '' : 'border-b'}`}
                         >
                           <td className="p-2">{index + 1}</td>
                           <td className="p-2">{record.plate}</td>
-                          <td className="p-2">{record.owner ?? "-"}</td>
+                          <td className="p-2">{record.owner ?? '-'}</td>
                           <td className="p-2">
-                            {record.taxdate?.trim() &&
-                            !isNaN(new Date(record.taxdate).getTime())
-                              ? new Date(record.taxdate).toLocaleDateString(
-                                  "id-ID",
-                                  {
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                  }
-                                )
-                              : "Data Tidak Tersedia"}
+                            {record.taxdate?.trim() && !isNaN(new Date(record.taxdate).getTime())
+                              ? new Date(record.taxdate).toLocaleDateString('id-ID', {
+                                  year: 'numeric',
+                                  month: 'long',
+                                  day: 'numeric',
+                                })
+                              : 'Data Tidak Tersedia'}
                           </td>
-                          <td className="p-2">
-                            {record.violation
-                              ? `Rp ${parseFloat(
-                                  record.violation
-                                ).toLocaleString()}`
-                              : "-"}
-                          </td>
+                          <td className="p-2">{record.violation ? `Rp ${parseFloat(record.violation).toLocaleString()}` : '-'}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td
-                          colSpan={5}
-                          className="p-4 text-center text-gray-500"
-                        >
-                          No data available
-                        </td>
+                        <td colSpan={5} className="p-4 text-center text-gray-500">No data available</td>
                       </tr>
                     )}
                   </tbody>
@@ -166,9 +130,7 @@ export default function RecordPage() {
         }
 
         @keyframes wave {
-          0%,
-          80%,
-          100% {
+          0%, 80%, 100% {
             transform: translateY(0);
           }
           40% {

@@ -1,8 +1,6 @@
 "use client";
 import { useRef, useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 
 interface DetectionResult {
   plat_nomor: string;
@@ -16,28 +14,22 @@ export default function Home() {
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [lastPlate, setLastPlate] = useState("");
   const [lastDetectedAt, setLastDetectedAt] = useState(0);
-  const { data: session } = useSession();
-  const router = useRouter();
 
   useEffect(() => {
-    if (!session) {
-      router.push("/login");
-    }
-    if (status === "loading") return; // Don't redirect while checking session
-
-    // Kalau sudah login, baru aktifkan kamera
+    // Akses kamera saat mount
     navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
     });
 
+    // Deteksi otomatis setiap 3 detik
     const interval = setInterval(() => {
       handleCapture();
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [session, lastPlate, lastDetectedAt]);
+  }, [lastPlate, lastDetectedAt]);
 
   const handleCapture = async () => {
     const video = videoRef.current;
