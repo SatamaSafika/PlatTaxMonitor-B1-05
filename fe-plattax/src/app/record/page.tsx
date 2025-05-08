@@ -14,7 +14,7 @@ type Record = {
 };
 
 export default function RecordPage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [records, setRecords] = useState<Record[]>([]);
   const [loading, setLoading] = useState(true);
 

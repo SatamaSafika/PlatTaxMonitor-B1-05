@@ -16,7 +16,7 @@ export default function Home() {
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [lastPlate, setLastPlate] = useState("");
   const [lastDetectedAt, setLastDetectedAt] = useState(0);
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {

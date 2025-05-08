@@ -1,15 +1,26 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function DetectPlat() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [detectionResults, setDetectionResults] = useState<
+    { plat_nomor: string; bulan_tahun_pajak: string }[]
+  >([]);
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      setSelectedImage(event.target.files[0]);
+    }
+  };
+
   const router = useRouter();
 
   useEffect(() => {
@@ -19,22 +30,6 @@ export default function DetectPlat() {
     }
   }, [session, router]);
 
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Track the submitting state
-  const [detectionResult, setDetectionResult] = useState<{
-    plat_nomor: string;
-    tanggal_pajak: string;
-    confidence: number;
-  } | null>(null); // Store detection result
-
-  // Handle the image upload
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      setSelectedImage(event.target.files[0]);
-    }
-  };
-
-  // Handle form submission to send the image to FastAPI backend
   const handleSubmit = async () => {
     if (!selectedImage) {
       alert("Please upload an image first!");
@@ -53,23 +48,20 @@ export default function DetectPlat() {
       });
 
       if (response.ok) {
-        const data = await response.json(); // Parse the JSON response
+        const data = await response.json();
         if (data.results && data.results.length > 0) {
-<<<<<<< HEAD
-          const formattedResults = data.results.map((item: any) => ({
-            plat_nomor: item.plat_nomor,
-            bulan_tahun_pajak: item.bulan_tahun_pajak,
-          }));
+          const formattedResults = data.results.map(
+            (item: { plat_nomor: string; bulan_tahun_pajak: string }) => ({
+              plat_nomor: item.plat_nomor,
+              bulan_tahun_pajak: item.bulan_tahun_pajak,
+            })
+          );
           setDetectionResults(formattedResults);
-=======
-          const result = data.results[0];
-          setDetectionResult(result);
->>>>>>> parent of 75f5a91 (Merge pull request #81 from SatamaSafika/494495)
         } else {
           alert("No results found in the response.");
         }
       } else {
-        const errorData = await response.json(); // Parse error details if available
+        const errorData = await response.json();
         alert(`Error submitting image: ${errorData.detail || "Unknown error"}`);
       }
     } catch (error) {
@@ -81,14 +73,11 @@ export default function DetectPlat() {
   };
 
   return (
-    <div className="flex h-screen">
-      {/* Sidebar Component */}
+    <div className="flex min-h-screen">
       <Sidebar />
 
-      {/* Main Content */}
       <div className="flex flex-col flex-grow items-center justify-center bg-gray-100">
         <div className="flex flex-col items-center bg-white p-8 rounded-lg shadow-lg">
-          {/* High-fidelity Text */}
           <h1 className="text-3xl font-bold mb-4 text-gray-800">
             Detect Plat Number
           </h1>
@@ -97,16 +86,14 @@ export default function DetectPlat() {
             number.
           </p>
 
-          {/* Illustration */}
           <Image
-            src="/PAKEINI/[6]UploadGambar.png" // Path to your image
+            src="/PAKEINI/[6]UploadGambar.png"
             alt="Upload Illustration"
             width={300}
             height={300}
             className="mb-8"
           />
 
-          {/* Upload Button */}
           <div className="flex flex-row items-center gap-4">
             <Link href={"/detect"}>
               <div className="flex items-center justify-center bg-emerald-400 hover:bg-emerald-700 text-white py-4 px-8 rounded-lg text-lg font-bold transition-all duration-300 hover:shadow-xl transform hover:scale-105">
@@ -126,20 +113,20 @@ export default function DetectPlat() {
               onChange={handleImageUpload}
             />
           </div>
-          <div></div>
-          {/* Image Preview */}
+
           {selectedImage && (
             <>
               <div className="mt-6">
                 <p className="text-center text-gray-500 mb-4">Preview:</p>
-                <img
+                <Image
                   src={URL.createObjectURL(selectedImage)}
                   alt="Uploaded Preview"
-                  className="w-64 h-64 object-cover rounded-lg shadow-md"
+                  width={256}
+                  height={256}
+                  className="object-cover rounded-lg shadow-md"
                 />
               </div>
 
-              {/* Submit Button */}
               <button
                 onClick={handleSubmit}
                 disabled={isSubmitting}
@@ -154,14 +141,16 @@ export default function DetectPlat() {
             </>
           )}
 
-<<<<<<< HEAD
           {detectionResults.length > 0 && (
-            <div className="mt-8 p-4 bg-gray-100 rounded-lg shadow-md w-full max-w-md">
-              <h2 className="text-xl font-bold text-gray-800 mb-4 text-center">
-                Detection Result
-              </h2>
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
               {detectionResults.map((result, index) => (
-                <div key={index} className="mb-4 p-2 border-b border-gray-300">
+                <div
+                  key={index}
+                  className="p-4 bg-white rounded-lg shadow-md border border-gray-300"
+                >
+                  <h2 className="text-lg font-bold text-gray-800 mb-2 text-center">
+                    Detection Result {index + 1}
+                  </h2>
                   <p className="text-gray-700">
                     <strong>Plate Number:</strong> {result.plat_nomor}
                   </p>
@@ -170,24 +159,6 @@ export default function DetectPlat() {
                   </p>
                 </div>
               ))}
-=======
-          {/* Display Detection Result */}
-          {detectionResult && (
-            <div className="mt-8 p-4 bg-gray-100 rounded-lg shadow-md">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">
-                Detection Result
-              </h2>
-              <p className="text-gray-700">
-                <strong>Plate Number:</strong> {detectionResult.plat_nomor}
-              </p>
-              <p className="text-gray-700">
-                <strong>Tax Date:</strong> {detectionResult.tanggal_pajak}
-              </p>
-              <p className="text-gray-700">
-                <strong>Confidence:</strong>{" "}
-                {(detectionResult.confidence * 100).toFixed(2)}%
-              </p>
->>>>>>> parent of 75f5a91 (Merge pull request #81 from SatamaSafika/494495)
             </div>
           )}
         </div>

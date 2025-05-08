@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const username = session?.user?.name || "User";
 
   // Modal state
