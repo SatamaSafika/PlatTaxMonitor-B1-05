@@ -5,14 +5,24 @@ import { useSession, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Lock, LogOut } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const username = session?.user?.name || "User";
 
   // Modal state
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "loading") return; // Don't redirect while checking session
+    if (!session) {
+      router.push("/login");
+    }
+  }, [session, router, status]);
 
   // Logout function
   const handleLogout = async () => {

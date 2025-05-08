@@ -1,11 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function DetectPlat() {
+  const { data: session, status } = useSession();
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [detectionResults, setDetectionResults] = useState<
@@ -17,6 +20,15 @@ export default function DetectPlat() {
       setSelectedImage(event.target.files[0]);
     }
   };
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === "loading") return; // Don't redirect while checking session
+    if (!session) {
+      router.push("/login");
+    }
+  }, [session, router, status]);
 
   const handleSubmit = async () => {
     if (!selectedImage) {
@@ -38,10 +50,12 @@ export default function DetectPlat() {
       if (response.ok) {
         const data = await response.json();
         if (data.results && data.results.length > 0) {
-          const formattedResults = data.results.map((item: { plat_nomor: string; bulan_tahun_pajak: string }) => ({
-            plat_nomor: item.plat_nomor,
-            bulan_tahun_pajak: item.bulan_tahun_pajak,
-          }));
+          const formattedResults = data.results.map(
+            (item: { plat_nomor: string; bulan_tahun_pajak: string }) => ({
+              plat_nomor: item.plat_nomor,
+              bulan_tahun_pajak: item.bulan_tahun_pajak,
+            })
+          );
           setDetectionResults(formattedResults);
         } else {
           alert("No results found in the response.");

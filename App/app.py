@@ -16,6 +16,7 @@ from dotenv import load_dotenv, dotenv_values
 load_dotenv("App/.env")
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+print(DATABASE_URL)
 
 # Gunakan path dinamis
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -88,7 +89,7 @@ async def detect_plate(file: UploadFile = File(...)):
 
             plat_result = plat_nomor.group() if plat_nomor else "Tidak ditemukan"
 
-            # Simpan ke database
+            # ✅ Simpan ke database
             record = DeteksiRecord(
                 plat_nomor=plat_result,
                 bulan_tahun_pajak=bulan_tahun_pajak
@@ -99,7 +100,6 @@ async def detect_plate(file: UploadFile = File(...)):
             detected_data.append({
                 "plat_nomor": plat_result,
                 "bulan_tahun_pajak": bulan_tahun_pajak,
-                "confidence": conf,
             })
 
     db.close()

@@ -1,6 +1,8 @@
 "use client";
 import { useRef, useState, useEffect } from "react";
 import Sidebar from "@/components/Sidebar";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 interface DetectionResult {
   plat_nomor: string;
@@ -11,25 +13,33 @@ interface DetectionResult {
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [result, setResult] = useState<DetectionResult | null>(null);
+  const [detectionResults, setDetectionResults] = useState<DetectionResult[]>(
+    []
+  );
   const [lastPlate, setLastPlate] = useState("");
   const [lastDetectedAt, setLastDetectedAt] = useState(0);
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
-    // Akses kamera saat mount
+    if (!session) {
+      router.push("/login");
+    }
+    if (status === "loading") return; // Don't redirect while checking session
+
+    // Kalau sudah login, baru aktifkan kamera
     navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
     });
 
-    // Deteksi otomatis setiap 3 detik
     const interval = setInterval(() => {
       handleCapture();
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [lastPlate, lastDetectedAt]);
+  }, [session, lastPlate, lastDetectedAt, status, router]);
 
   const handleCapture = async () => {
     const video = videoRef.current;
@@ -66,7 +76,10 @@ export default function Home() {
             ) {
               setLastPlate(plate);
               setLastDetectedAt(Date.now());
-              setResult(data.results[0]);
+              setDetectionResults((prevResults) => [
+                ...prevResults,
+                data.results[0],
+              ]);
             }
           } catch (err) {
             console.error("Deteksi gagal:", err);
@@ -92,21 +105,28 @@ export default function Home() {
         <canvas ref={canvasRef} style={{ display: "none" }} />
 
         {/* Hasil Deteksi */}
-        {result && (
-          <div className="mt-4 p-4 bg-gray-100 rounded shadow w-full max-w-md">
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">
-              Hasil Deteksi
-            </h2>
-            <p className="text-gray-700">
-              <strong>Plate Number:</strong> {result.plat_nomor}
-            </p>
-            <p className="text-gray-700">
-              <strong>Tax Date:</strong> {result.tanggal_pajak}
-            </p>
-            <p className="text-gray-700">
-              <strong>Confidence:</strong>{" "}
-              {(result.confidence * 100).toFixed(2)}%
-            </p>
+        {detectionResults.length > 0 && (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+            {detectionResults.map((result, index) => (
+              <div
+                key={index}
+                className="p-4 bg-white rounded-lg shadow-md border border-gray-300"
+              >
+                <h2 className="text-lg font-bold text-gray-800 mb-2 text-center">
+                  Detection Result {index + 1}
+                </h2>
+                <p className="text-gray-700">
+                  <strong>Plate Number:</strong> {result.plat_nomor}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Tax Date:</strong> {result.tanggal_pajak}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Confidence:</strong>{" "}
+                  {(result.confidence * 100).toFixed(2)}%
+                </p>
+              </div>
+            ))}
           </div>
         )}
       </div>
