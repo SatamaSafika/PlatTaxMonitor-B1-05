@@ -51,6 +51,7 @@ export default function ProfilePage() {
 
         {/* Edit Password Button */}
         <Button
+          onClick={() => router.push("/editpassword")}
           className="p-6 text-2xl flex gap-4 items-center text-white bg-cover bg-center font-bold transition duration-200 hover:scale-105 hover:brightness-110"
           style={{
             backgroundImage: "url('/icons/title-bg.png')",
@@ -60,6 +61,7 @@ export default function ProfilePage() {
         >
           <Lock size={48} /> Edit Password
         </Button>
+
 
         {/* Log Out Button */}
         <Button
