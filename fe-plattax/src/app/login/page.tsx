@@ -23,17 +23,6 @@ export default function Page() {
         </h1>
 
         <LoginForm />
-
-        {/* Forgot password */}
-        <p className="mt-6 text-center text-sm text-gray-500">
-          Forgot your password?{" "}
-          <a
-            href="/forgot-password"
-            className="text-blue-600 hover:underline hover:text-blue-800 transition-all"
-          >
-            Reset it here
-          </a>
-        </p>
       </div>
     </div>
   );
