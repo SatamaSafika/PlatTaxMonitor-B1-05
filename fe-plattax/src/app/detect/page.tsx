@@ -13,7 +13,9 @@ interface DetectionResult {
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [result, setResult] = useState<DetectionResult | null>(null);
+  const [detectionResults, setDetectionResults] = useState<DetectionResult[]>(
+    []
+  );
   const [lastPlate, setLastPlate] = useState("");
   const [lastDetectedAt, setLastDetectedAt] = useState(0);
   const { data: session, status } = useSession();
@@ -37,7 +39,7 @@ export default function Home() {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [session, lastPlate, lastDetectedAt]);
+  }, [session, lastPlate, lastDetectedAt, status, router]);
 
   const handleCapture = async () => {
     const video = videoRef.current;
@@ -74,7 +76,10 @@ export default function Home() {
             ) {
               setLastPlate(plate);
               setLastDetectedAt(Date.now());
-              setResult(data.results[0]);
+              setDetectionResults((prevResults) => [
+                ...prevResults,
+                data.results[0],
+              ]);
             }
           } catch (err) {
             console.error("Deteksi gagal:", err);
@@ -100,21 +105,28 @@ export default function Home() {
         <canvas ref={canvasRef} style={{ display: "none" }} />
 
         {/* Hasil Deteksi */}
-        {result && (
-          <div className="mt-4 p-4 bg-gray-100 rounded shadow w-full max-w-md">
-            <h2 className="text-lg font-semibold text-gray-800 mb-2">
-              Hasil Deteksi
-            </h2>
-            <p className="text-gray-700">
-              <strong>Plate Number:</strong> {result.plat_nomor}
-            </p>
-            <p className="text-gray-700">
-              <strong>Tax Date:</strong> {result.tanggal_pajak}
-            </p>
-            <p className="text-gray-700">
-              <strong>Confidence:</strong>{" "}
-              {(result.confidence * 100).toFixed(2)}%
-            </p>
+        {detectionResults.length > 0 && (
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+            {detectionResults.map((result, index) => (
+              <div
+                key={index}
+                className="p-4 bg-white rounded-lg shadow-md border border-gray-300"
+              >
+                <h2 className="text-lg font-bold text-gray-800 mb-2 text-center">
+                  Detection Result {index + 1}
+                </h2>
+                <p className="text-gray-700">
+                  <strong>Plate Number:</strong> {result.plat_nomor}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Tax Date:</strong> {result.tanggal_pajak}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Confidence:</strong>{" "}
+                  {(result.confidence * 100).toFixed(2)}%
+                </p>
+              </div>
+            ))}
           </div>
         )}
       </div>

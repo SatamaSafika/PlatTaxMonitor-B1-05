@@ -22,7 +22,7 @@ export default function ProfilePage() {
     if (!session) {
       router.push("/login");
     }
-  }, [session, router]);
+  }, [session, router, status]);
 
   // Logout function
   const handleLogout = async () => {

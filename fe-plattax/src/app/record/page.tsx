@@ -25,7 +25,7 @@ export default function RecordPage() {
     if (!session) {
       router.push("/login");
     }
-  }, [session, router]);
+  }, [session, router, status]);
 
   useEffect(() => {
     const fetchRecords = async () => {

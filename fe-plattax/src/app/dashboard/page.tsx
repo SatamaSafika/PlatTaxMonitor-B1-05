@@ -28,7 +28,7 @@ export default function DetectPlat() {
     if (!session) {
       router.push("/login");
     }
-  }, [session, router]);
+  }, [session, router, status]);
 
   const handleSubmit = async () => {
     if (!selectedImage) {

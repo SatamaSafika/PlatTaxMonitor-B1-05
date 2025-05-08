@@ -26,11 +26,21 @@ export default function Sidebar({ forceClose }: SidebarProps) {
     setIsOpen(!isOpen);
   };
 
+  // Redirect logic for Plat Record
+  const handlePlatRecordClick = () => {
+    window.location.href = "/record";
+  };
+
+  // Redirect logic for Profile
+  const handleProfileClick = () => {
+    window.location.href = "/profile";
+  };
+
   // Color palette from the image you provided
   const darkNavy: string = "#030117";
 
   return (
-    <div className="relative flex">
+    <div className="fixed top-0 left-0 h-screen z-50 flex">
       {/* Hamburger Icon (toggle button) */}
       <button
         onClick={toggleSidebar}
@@ -67,7 +77,7 @@ export default function Sidebar({ forceClose }: SidebarProps) {
               {/* Dashboard (Detect Plat renamed) */}
               <Link
                 href="/dashboard"
-                className="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg transition-all transform hover:scale-105 w-full"
+                className="flex items-center justify-center bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg transition-all transform hover:scale-105"
               >
                 {" "}
                 {/* Increased button height */}
@@ -82,36 +92,38 @@ export default function Sidebar({ forceClose }: SidebarProps) {
               </Link>
 
               {/* Plat Record with click event */}
-              <Link href="/record">
-                <button className="flex items-center justify-center bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-lg transition-all transform hover:scale-105 w-full">
-                  {" "}
-                  {/* Increased button height */}
-                  <Image
-                    src="/PAKEINI/[3]PlatRecord.png"
-                    alt="Plat Record"
-                    width={50}
-                    height={50}
-                    className="mr-2"
-                  />
-                  <span className="font-bold text-xl">Plat Record</span>
-                </button>
-              </Link>
+              <button
+                onClick={handlePlatRecordClick}
+                className="flex items-center justify-center bg-yellow-500 hover:bg-yellow-600 text-white py-3 rounded-lg transition-all transform hover:scale-105"
+              >
+                {" "}
+                {/* Increased button height */}
+                <Image
+                  src="/PAKEINI/[3]PlatRecord.png"
+                  alt="Plat Record"
+                  width={50}
+                  height={50}
+                  className="mr-2"
+                />
+                <span className="font-bold text-xl">Plat Record</span>
+              </button>
 
               {/* Profile */}
-              <Link href="/profile">
-                <button className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg transition-all transform hover:scale-105 w-full">
-                  {" "}
-                  {/* Increased button height */}
-                  <Image
-                    src="/PAKEINI/[4]Profile.png"
-                    alt="Profile"
-                    width={50}
-                    height={50}
-                    className="mr-2"
-                  />
-                  <span className="font-bold text-xl">Profile</span>
-                </button>
-              </Link>
+              <button
+                onClick={handleProfileClick}
+                className="flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg transition-all transform hover:scale-105"
+              >
+                {" "}
+                {/* Increased button height */}
+                <Image
+                  src="/PAKEINI/[4]Profile.png"
+                  alt="Profile"
+                  width={50}
+                  height={50}
+                  className="mr-2"
+                />
+                <span className="font-bold text-xl">Profile</span>
+              </button>
             </div>
 
             {/* Spacer to push the Contact Us to the bottom */}
