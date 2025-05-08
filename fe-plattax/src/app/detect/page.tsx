@@ -34,60 +34,63 @@ export default function Home() {
       }
     });
 
+    const handleCapture = async () => {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+
+      if (video && canvas) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext("2d");
+
+        if (ctx) {
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          canvas.toBlob(async (blob) => {
+            if (!blob) return;
+
+            const formData = new FormData();
+            formData.append("file", blob, "frame.jpg");
+
+            try {
+              const res = await fetch(
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/detect/`,
+                {
+                  method: "POST",
+                  body: formData,
+                }
+              );
+
+              const data = await res.json();
+              const plate = data.results?.[0]?.plat_nomor;
+
+              if (
+                plate &&
+                plate !== "Tidak ditemukan" &&
+                plate !== lastPlate &&
+                Date.now() - lastDetectedAt > 10000 // 10 detik jeda antar deteksi plat yang sama
+              ) {
+                setLastPlate(plate);
+                setLastDetectedAt(Date.now());
+                setDetectionResults((prevResults) => [
+                  ...prevResults,
+                  data.results[0],
+                ]);
+              }
+            } catch (err) {
+              console.error("Deteksi gagal:", err);
+            }
+          }, "image/jpeg");
+        }
+      }
+    };
+
     const interval = setInterval(() => {
       handleCapture();
     }, 3000);
 
     return () => clearInterval(interval);
   }, [session, lastPlate, lastDetectedAt, status, router]);
-
-  const handleCapture = async () => {
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-
-    if (video && canvas) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext("2d");
-
-      if (ctx) {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        canvas.toBlob(async (blob) => {
-          if (!blob) return;
-
-          const formData = new FormData();
-          formData.append("file", blob, "frame.jpg");
-
-          try {
-            const res = await fetch("http://localhost:8000/detect/", {
-              method: "POST",
-              body: formData,
-            });
-
-            const data = await res.json();
-            const plate = data.results?.[0]?.plat_nomor;
-
-            if (
-              plate &&
-              plate !== "Tidak ditemukan" &&
-              plate !== lastPlate &&
-              Date.now() - lastDetectedAt > 10000 // 10 detik jeda antar deteksi plat yang sama
-            ) {
-              setLastPlate(plate);
-              setLastDetectedAt(Date.now());
-              setDetectionResults((prevResults) => [
-                ...prevResults,
-                data.results[0],
-              ]);
-            }
-          } catch (err) {
-            console.error("Deteksi gagal:", err);
-          }
-        }, "image/jpeg");
-      }
-    }
-  };
 
   return (
     <div className="flex h-screen">
