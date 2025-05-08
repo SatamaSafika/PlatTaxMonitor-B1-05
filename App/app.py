@@ -20,7 +20,7 @@ print(DATABASE_URL)
 
 # Gunakan path dinamis
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_PATH = os.path.join(BASE_DIR, "..", "AI", "training_results", "weights", "best.pt")
+MODEL_PATH = os.path.join(BASE_DIR, "weights", "best.pt")
 
 # Load model
 model = YOLO(MODEL_PATH)
@@ -45,7 +45,7 @@ app = FastAPI()
 # CORS setup (biar bisa diakses dari FE)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
