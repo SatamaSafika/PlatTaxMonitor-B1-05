@@ -16,7 +16,7 @@ export default function Page() {
       <div className="absolute inset-0 bg-black opacity-30 z-0"></div>
 
       {/* Login container */}
-      <div className="absolute inset-0 bg-white p-12 rounded-lg shadow-lg z-90">
+      <div className="relative inset-0 bg-white p-12 rounded-lg shadow-lg z-90">
         {/* Form title */}
         <h1 className="text-3xl font-extrabold text-gray-800 text-center mb-6">
           Welcome Back to <br /> PlatTax Monitor!
