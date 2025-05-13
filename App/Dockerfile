@@ -17,5 +17,7 @@ RUN apt-get update && apt-get install -y \
 # Salin semua file termasuk .env dari konteks build
 COPY . .
 
+EXPOSE 8000
+
 # Jalankan FastAPI pakai uvicorn
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
