@@ -14,6 +14,7 @@ export default function DetectPlat() {
   const [detectionResults, setDetectionResults] = useState<
     { plat_nomor: string; bulan_tahun_pajak: string }[]
   >([]);
+  const [emailStatuses, setEmailStatuses] = useState<boolean[]>([]);
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
@@ -57,6 +58,30 @@ export default function DetectPlat() {
             })
           );
           setDetectionResults(formattedResults);
+
+          const emailStatuses = await Promise.all(
+            formattedResults.map(async (result: { plat_nomor: string; bulan_tahun_pajak: string }) => {
+              try {
+                const emailResponse = await fetch("/api/sendEmail", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    to: "user@example.com", // Ganti dengan email dari database
+                    subject: "Tagihan Pajak Kendaraan Anda",
+                    message: `
+                      <p>Kendaraan dengan plat <strong>${result.plat_nomor}</strong> telah terdeteksi oleh sistem kami.</p>
+                      <p>Segera bayar sebelum terkena denda tambahan.</p>
+                    `,
+                  }),
+                });
+                return emailResponse.ok; // True jika email terkirim, false jika gagal
+              } catch (error) {
+                console.error("Error sending email:", error);
+                return false;
+              }
+            })
+          );
+          setEmailStatuses(emailStatuses);
         } else {
           alert("No results found in the response.");
         }
@@ -157,6 +182,12 @@ export default function DetectPlat() {
                   <p className="text-gray-700">
                     <strong>Tax Date:</strong> {result.bulan_tahun_pajak}
                   </p>
+                  {/* Keterangan Email */}
+                  {emailStatuses[index] ? (
+                    <p className="text-green-600 font-bold mt-2">Email Sent!</p>
+                  ) : (
+                    <p className="text-red-600 font-bold mt-2">Email Failed!</p>
+                  )}
                 </div>
               ))}
             </div>
