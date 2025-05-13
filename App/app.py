@@ -15,6 +15,7 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 from typing import List
+import httpx
 
 # Load environment variables
 load_dotenv("App/.env")
@@ -84,6 +85,8 @@ app.add_middleware(
 TEMP_FOLDER = "temp"
 os.makedirs(TEMP_FOLDER, exist_ok=True)
 
+import httpx
+
 @app.post("/detect/")
 async def detect_plate(file: UploadFile = File(...)):
     contents = await file.read()
@@ -94,42 +97,54 @@ async def detect_plate(file: UploadFile = File(...)):
     detected_data = []
     db = SessionLocal()
 
-    for i, result in enumerate(results):
-        for box in result.boxes:
-            x1, y1, x2, y2 = map(int, box.xyxy[0])
-            plate_crop = image[y1:y2, x1:x2]
-            plate_gray = cv2.cvtColor(plate_crop, cv2.COLOR_BGR2GRAY)
+    async with httpx.AsyncClient() as client:  # Menggunakan client HTTP async
+        for i, result in enumerate(results):
+            for box in result.boxes:
+                x1, y1, x2, y2 = map(int, box.xyxy[0])
+                plate_crop = image[y1:y2, x1:x2]
+                plate_gray = cv2.cvtColor(plate_crop, cv2.COLOR_BGR2GRAY)
 
-            cropped_plate_path = os.path.join(TEMP_FOLDER, f"plate_{i}.jpg")
-            cv2.imwrite(cropped_plate_path, plate_crop)
+                cropped_plate_path = os.path.join(TEMP_FOLDER, f"plate_{i}.jpg")
+                cv2.imwrite(cropped_plate_path, plate_crop)
 
-            ocr_results = reader.readtext(plate_gray)
-            detected_text = " ".join([text[1] for text in ocr_results])
-            detected_text = re.sub(r"[^\w\s\.\-]", "", detected_text).upper().strip()
+                ocr_results = reader.readtext(plate_gray)
+                detected_text = " ".join([text[1] for text in ocr_results])
+                detected_text = re.sub(r"[^\w\s\.\-]", "", detected_text).upper().strip()
 
-            print(f"\n[INFO] Detected raw text: {detected_text}")
+                print(f"\n[INFO] Detected raw text: {detected_text}")
 
-            # Koreksi dan ekstrak plat nomor
-            plat_result = extract_and_correct_plate(detected_text)
-            if plat_result == "Tidak ditemukan":
-                print("[INFO] Plate not matched by format")
-                continue
-            print(f"[INFO] Corrected plate: {plat_result}")
+                # Koreksi dan ekstrak plat nomor
+                plat_result = extract_and_correct_plate(detected_text)
+                if plat_result == "Tidak ditemukan":
+                    print("[INFO] Plate not matched by format")
+                    continue
+                print(f"[INFO] Corrected plate: {plat_result}")
 
-            # Simpan ke database hanya plat nomor
-            record = DeteksiRecord(
-                plat_nomor=plat_result
-            )   
-            db.add(record)
-            db.commit()
+                # Mengambil data pajak dari API `/vehicle-tax/{plat_nomor}`
+                vehicle_tax_url = f"http://localhost:8000/vehicle-tax/{plat_result}"
+                response = await client.get(vehicle_tax_url)
 
-            detected_data.append({
-                "plat_nomor": plat_result,
-            })
+                if response.status_code == 200:
+                    vehicle_data = response.json()
+
+                    detected_data.append({
+                        "plat_nomor": plat_result,
+                        "tax_date": vehicle_data.get("tax_date", "No tax information"),
+                        "nama_pemilik": vehicle_data.get("nama_pemilik", "No owner info"),
+                        "nilai_tagihan": vehicle_data.get("nilai_tagihan", 0),
+                    })
+                else:
+                    print(f"[INFO] No data found for plate {plat_result}")
+
+                # Simpan ke database hanya plat nomor (atau tambahan data lain jika diperlukan)
+                record = DeteksiRecord(
+                    plat_nomor=plat_result
+                )   
+                db.add(record)
+                db.commit()
 
     db.close()
     return {"results": detected_data}
-
 
 def extract_and_correct_plate(text: str) -> str:
     """

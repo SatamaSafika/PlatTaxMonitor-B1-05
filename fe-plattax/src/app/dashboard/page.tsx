@@ -87,8 +87,9 @@ export default function DetectPlat() {
                       to: "neabarbara2@gmail.com", // Ganti dengan email dari database
                       subject: "Tagihan Pajak Kendaraan Anda",
                       message: `
-                        <p>Kendaraan dengan plat <strong>${result.plat_nomor}</strong> telah terdeteksi oleh sistem kami.</p>
-                        <p>Segera bayar sebelum terkena denda tambahan.</p>
+                            <p>Kendaraan dengan plat <strong>${result.plat_nomor}</strong> telah terdeteksi oleh sistem kami.</p>
+                            <p>Total tagihan Anda: <strong>Rp ${result.nilai_tagihan}</strong>.</p>
+                            <p>Segera bayar sebelum terkena denda tambahan.</p>
                       `,
                     }),
                   });
