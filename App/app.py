@@ -18,7 +18,7 @@ from typing import List
 import httpx
 
 # Load environment variables
-load_dotenv("App/.env")
+load_dotenv(".env")
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL is not set in the environment variables")
