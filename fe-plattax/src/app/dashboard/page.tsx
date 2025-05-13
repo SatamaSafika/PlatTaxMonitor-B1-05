@@ -94,6 +94,7 @@ export default function DetectPlat() {
                       to: "neabarbara2@gmail.com", // Ganti dengan email dari database
                       subject: "Tagihan Pajak Kendaraan Anda",
                       message: `
+<<<<<<< HEAD
                         <h1>Informasi Tagihan Pajak Kendaraan Anda - Plattax Monitor</h1>
                         <p>Halo <strong>${result.nama_pemilik}</strong>,</p>
                         <p>Kendaraan Anda dengan plat <strong>${
@@ -120,6 +121,33 @@ export default function DetectPlat() {
                         <p>Segera lakukan pembayaran sebelum dikenakan denda tambahan atau sanksi lainnya.</p>
                         <p>Terima kasih telah menggunakan layanan <strong>Plattax Monitor</strong>.</p>
                         <p>Hormat kami,<br>Tim Plattax</p>
+=======
+                        <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+                          <div style="background-color: #004aad; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+                            <h1 style="margin: 0;">Informasi Tagihan Pajak Kendaraan Anda - Plattax Monitor</h1>
+                          </div>
+
+                          <div style="background-color: white; padding: 20px; border-radius: 0 0 8px 8px;">
+                            <p>Halo <strong>${result.nama_pemilik}</strong>,</p>
+                            <p>Kendaraan Anda dengan plat <strong>${result.plat_nomor}</strong> telah terdeteksi oleh sistem Plattax Monitor.</p>
+                            <p>Detail informasi kendaraan Anda:</p>
+                            <ul style="line-height: 1.6;">
+                              <li><strong>Nama Pemilik:</strong> ${result.nama_pemilik}</li>
+                              <li><strong>Plat Nomor:</strong> ${result.plat_nomor}</li>
+                              <li><strong>Tanggal Pajak Terakhir:</strong> ${result.tax_date}</li>
+                              <li><strong>Harga Pajak Tahunan:</strong> <span style="color:#007b00;"><strong>Rp ${Number(result.harga_pajak).toLocaleString('id-ID')}</strong></span></li>
+                              <li><strong>Total Tagihan Tertunggak:</strong> <span style="color:#d60000;"><strong>Rp ${Number(result.nilai_tagihan).toLocaleString('id-ID')}</strong></span></li>
+                            </ul>
+                            <p>Segera lakukan pembayaran sebelum dikenakan denda tambahan atau sanksi lainnya.</p>
+                            <p>Terima kasih telah menggunakan layanan <strong>Plattax Monitor</strong>.</p>
+                            <p>Hormat kami,<br>Tim Plattax</p>
+                          </div>
+
+                          <div style="text-align: center; margin-top: 30px;">
+                          <p style="font-size: 12px; color: #888;">Email ini dikirim secara otomatis oleh sistem Plattax Monitor.</p>
+                          </div>
+                        </div>
+>>>>>>> b452114137d487b93275d2d2dab8fbf9fc587ef9
                       `,
                     }),
                   });
