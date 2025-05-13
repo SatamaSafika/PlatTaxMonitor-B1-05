@@ -6,8 +6,9 @@ import { useSession } from "next-auth/react";
 
 interface DetectionResult {
   plat_nomor: string;
-  bulan_tahun_pajak: string;
-  confidence: number;
+  tax_date: string;
+  nama_pemilik: string;
+  nilai_tagihan: number;
 }
 
 export default function Home() {
@@ -18,6 +19,7 @@ export default function Home() {
   );
   const [lastPlate, setLastPlate] = useState("");
   const [lastDetectedAt, setLastDetectedAt] = useState(0);
+  const [emailStatuses, setEmailStatuses] = useState<boolean[]>([]); // Track email statuses
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -77,27 +79,31 @@ export default function Home() {
                   data.results[0],
                 ]);
 
-                // Fetch email and bill from the database
-                const emailResponse = await fetch(
-                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/getLatestDetection`
+                // Kirim email untuk setiap hasil deteksi
+                const emailStatuses = await Promise.all(
+                  data.results.map(async (result: DetectionResult) => {
+                    try {
+                      const emailResponse = await fetch("/api/sendEmail", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          to: "neabarbara2@gmail.com", // Ganti dengan email dari database
+                          subject: "Tagihan Pajak Kendaraan Anda",
+                          message: `
+                            <p>Kendaraan dengan plat <strong>${result.plat_nomor}</strong> telah terdeteksi oleh sistem kami.</p>
+                            <p>Total tagihan Anda: <strong>Rp ${result.nilai_tagihan}</strong>.</p>
+                            <p>Segera bayar sebelum terkena denda tambahan.</p>
+                          `,
+                        }),
+                      });
+                      return emailResponse.ok; // True jika email terkirim, false jika gagal
+                    } catch (error) {
+                      console.error("Error sending email:", error);
+                      return false;
+                    }
+                  })
                 );
-                const { email, plat_nomor, violation_bill } =
-                  await emailResponse.json();
-
-                // Send email
-                await fetch("/api/sendEmail", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    to: email,
-                    subject: "Tagihan Pajak Kendaraan Anda",
-                    message: `
-          <p>Kendaraan dengan plat <strong>${plat_nomor}</strong> telah terdeteksi oleh sistem kami.</p>
-          <p>Total tagihan Anda: <strong>Rp ${violation_bill}</strong>.</p>
-          <p>Segera bayar sebelum terkena denda tambahan.</p>
-        `,
-                  }),
-                });
+                setEmailStatuses(emailStatuses); // Update email statuses
               }
             } catch (err) {
               console.error("Deteksi gagal:", err);
@@ -131,25 +137,37 @@ export default function Home() {
 
         {/* Hasil Deteksi */}
         {detectionResults.length > 0 && (
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
-              {detectionResults.map((result, index) => (
-                <div
-                  key={index}
-                  className="p-4 bg-white rounded-lg shadow-md border border-gray-300"
-                >
-                  <h2 className="text-lg font-bold text-gray-800 mb-2 text-center">
-                    Detection Result {index + 1}
-                  </h2>
-                  <p className="text-gray-700">
-                    <strong>Plate Number:</strong> {result.plat_nomor}
-                  </p>
-                  <p className="text-gray-700">
-                    <strong>Tax Date:</strong> {result.bulan_tahun_pajak}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+            {detectionResults.map((result, index) => (
+              <div
+                key={index}
+                className="p-4 bg-white rounded-lg shadow-md border border-gray-300"
+              >
+                <h2 className="text-lg font-bold text-gray-800 mb-2 text-center">
+                  Detection Result {index + 1}
+                </h2>
+                <p className="text-gray-700">
+                  <strong>Plate Number:</strong> {result.plat_nomor}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Tax Date:</strong> {result.tax_date}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Owner&apos;s Name:</strong> {result.nama_pemilik}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Tax Amount:</strong> {result.nilai_tagihan}
+                </p>
+                {/* Keterangan Email */}
+                {emailStatuses[index] ? (
+                  <p className="text-green-600 font-bold mt-2">Email Sent!</p>
+                ) : (
+                  <p className="text-red-600 font-bold mt-2">Email Failed!</p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
