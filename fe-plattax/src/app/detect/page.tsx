@@ -76,6 +76,28 @@ export default function Home() {
                   ...prevResults,
                   data.results[0],
                 ]);
+
+                // Fetch email and bill from the database
+                const emailResponse = await fetch(
+                  `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/getLatestDetection`
+                );
+                const { email, plat_nomor, violation_bill } =
+                  await emailResponse.json();
+
+                // Send email
+                await fetch("/api/sendEmail", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    to: email,
+                    subject: "Tagihan Pajak Kendaraan Anda",
+                    message: `
+          <p>Kendaraan dengan plat <strong>${plat_nomor}</strong> telah terdeteksi oleh sistem kami.</p>
+          <p>Total tagihan Anda: <strong>Rp ${violation_bill}</strong>.</p>
+          <p>Segera bayar sebelum terkena denda tambahan.</p>
+        `,
+                  }),
+                });
               }
             } catch (err) {
               console.error("Deteksi gagal:", err);
