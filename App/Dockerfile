@@ -17,8 +17,5 @@ RUN apt-get update && apt-get install -y \
 # Salin semua file proyek ke dalam container
 COPY . .
 
-# Salin file .env ke dalam container
-COPY .env .env
-
 # Jalankan server FastAPI
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
