@@ -78,11 +78,12 @@ app = FastAPI()
 # Setup CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://plat-tax-monitor-b1-05.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Temp folder
 TEMP_FOLDER = "temp"
@@ -124,7 +125,7 @@ async def detect_plate(file: UploadFile = File(...)):
                 print(f"[INFO] Corrected plate: {plat_result}")
 
                 # Mengambil data pajak dari API `/vehicle-tax/{plat_nomor}`
-                vehicle_tax_url = f"http://localhost:8000/vehicle-tax/{plat_result}"
+                vehicle_tax_url = f"{BACKEND_URL}/vehicle-tax/{plat_result}"
                 response = await client.get(vehicle_tax_url)
 
                 if response.status_code == 200:
