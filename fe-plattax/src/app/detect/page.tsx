@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 
 interface DetectionResult {
   plat_nomor: string;
-  tanggal_pajak: string;
+  bulan_tahun_pajak: string;
   confidence: number;
 }
 
@@ -109,29 +109,25 @@ export default function Home() {
 
         {/* Hasil Deteksi */}
         {detectionResults.length > 0 && (
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
-            {detectionResults.map((result, index) => (
-              <div
-                key={index}
-                className="p-4 bg-white rounded-lg shadow-md border border-gray-300"
-              >
-                <h2 className="text-lg font-bold text-gray-800 mb-2 text-center">
-                  Detection Result {index + 1}
-                </h2>
-                <p className="text-gray-700">
-                  <strong>Plate Number:</strong> {result.plat_nomor}
-                </p>
-                <p className="text-gray-700">
-                  <strong>Tax Date:</strong> {result.tanggal_pajak}
-                </p>
-                <p className="text-gray-700">
-                  <strong>Confidence:</strong>{" "}
-                  {(result.confidence * 100).toFixed(2)}%
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-2xl">
+              {detectionResults.map((result, index) => (
+                <div
+                  key={index}
+                  className="p-4 bg-white rounded-lg shadow-md border border-gray-300"
+                >
+                  <h2 className="text-lg font-bold text-gray-800 mb-2 text-center">
+                    Detection Result {index + 1}
+                  </h2>
+                  <p className="text-gray-700">
+                    <strong>Plate Number:</strong> {result.plat_nomor}
+                  </p>
+                  <p className="text-gray-700">
+                    <strong>Tax Date:</strong> {result.bulan_tahun_pajak}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
       </div>
     </div>
   );
