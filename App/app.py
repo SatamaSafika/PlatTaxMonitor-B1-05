@@ -12,6 +12,7 @@ from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+from typing import List
 
 # Load environment variables
 load_dotenv("App/.env")
@@ -37,12 +38,11 @@ class DeteksiRecord(Base):
     id_record = Column(Integer, primary_key=True, index=True)
     timestamp_deteksi = Column(DateTime, default=datetime.utcnow)
     plat_nomor = Column(String(15), nullable=False)
-    bulan_tahun_pajak = Column(String(10), nullable=True)
 
 # Setup FastAPI app
 app = FastAPI()
 
-# Setup CORS (agar bisa diakses dari frontend)
+# Setup CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -51,7 +51,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Temp folder untuk simpan gambar hasil crop
+# Temp folder
 TEMP_FOLDER = "temp"
 os.makedirs(TEMP_FOLDER, exist_ok=True)
 
@@ -87,25 +87,20 @@ async def detect_plate(file: UploadFile = File(...)):
                 continue
             print(f"[INFO] Corrected plate: {plat_result}")
 
-            # Ambil info pajak jika ada (misalnya: 09.25)
-            pajak = re.findall(r"\b\d{2}\b", detected_text)
-            bulan_tahun_pajak = f"{pajak[0]}.{pajak[1]}" if len(pajak) >= 2 else "Tidak ditemukan"
-
-            # Simpan ke database
+            # Simpan ke database hanya plat nomor
             record = DeteksiRecord(
-                plat_nomor=plat_result,
-                bulan_tahun_pajak=bulan_tahun_pajak
+                plat_nomor=plat_result
             )
             db.add(record)
             db.commit()
 
             detected_data.append({
                 "plat_nomor": plat_result,
-                "bulan_tahun_pajak": bulan_tahun_pajak,
             })
 
     db.close()
     return {"results": detected_data}
+
 
 def extract_and_correct_plate(text: str) -> str:
     """
@@ -114,8 +109,8 @@ def extract_and_correct_plate(text: str) -> str:
     text = re.sub(r'\s+', ' ', text).strip()
 
     # Pisahkan huruf dan angka jika tidak ada spasi
-    text = re.sub(r'([A-Z])(\d)', r'\1 \2', text)      # Contoh: B2156 → B 2156
-    text = re.sub(r'(\d)([A-Z])', r'\1 \2', text)      # Contoh: 2156TOR → 2156 TOR
+    text = re.sub(r'([A-Z])(\d)', r'\1 \2', text)
+    text = re.sub(r'(\d)([A-Z])', r'\1 \2', text)
 
     match = re.match(r"([A-Z0-9]{1,2})\s+(\d{1,4})\s+([A-Z0-9]{1,3})", text)
     if not match:
@@ -132,18 +127,54 @@ def extract_and_correct_plate(text: str) -> str:
         '8': 'B'
     }
 
-    def correct_letters(text):
-        return ''.join(replacements.get(c, c) for c in text)
+    def correct_letters(s):
+        return ''.join(replacements.get(c, c) for c in s)
 
     corrected_prefix = correct_letters(prefix)
     corrected_suffix = correct_letters(suffix)
 
     return f"{corrected_prefix} {numbers} {corrected_suffix}"
 
+
+def extract_tax_info(text: str, exclude_numbers: List[str]) -> str:
+    """
+    Mengekstrak informasi pajak dalam format bulan.tahun dari teks OCR,
+    sambil mengecualikan angka-angka yang sudah dipakai dalam plat nomor.
+    """
+    candidates = re.findall(r'\d{1,4}(?:\.\d{1,4})?', text)
+
+    # Filter angka yang sudah digunakan di plat
+    filtered = [
+        c for c in candidates
+        if all(part not in exclude_numbers for part in re.split(r'\.', c))
+    ]
+
+    for i in range(len(filtered)):
+        current = filtered[i]
+
+        # Format langsung: xx.xx
+        if '.' in current:
+            parts = current.split('.')
+            if len(parts) == 2 and all(p.isdigit() for p in parts):
+                bulan, tahun = parts
+                if 1 <= int(bulan) <= 12:
+                    return f"{bulan.zfill(2)}.{tahun.zfill(2)}"
+
+        # Format dua angka terpisah (tanpa titik)
+        if i + 1 < len(filtered):
+            bulan, tahun = filtered[i], filtered[i + 1]
+            if (
+                bulan.isdigit() and tahun.isdigit() and
+                1 <= int(bulan) <= 12
+            ):
+                return f"{bulan.zfill(2)}.{tahun.zfill(2)}"
+
+    return "Tidak ditemukan"
+
 @app.get("/")
 def read_root():
     return {"message": "API is running. Go to /detect/ to upload an image."}
 
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
-    
