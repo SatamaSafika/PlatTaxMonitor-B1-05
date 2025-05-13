@@ -12,7 +12,12 @@ export default function DetectPlat() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [detectionResults, setDetectionResults] = useState<
-    { plat_nomor: string; bulan_tahun_pajak: string }[]
+    {
+      plat_nomor: string;
+      tax_date: string;
+      nama_pemilik: string;
+      nilai_tagihan: number;
+    }[]
   >([]);
   const [emailStatuses, setEmailStatuses] = useState<boolean[]>([]);
 
@@ -52,34 +57,48 @@ export default function DetectPlat() {
         const data = await response.json();
         if (data.results && data.results.length > 0) {
           const formattedResults = data.results.map(
-            (item: { plat_nomor: string; bulan_tahun_pajak: string }) => ({
+            (item: {
+              plat_nomor: string;
+              tax_date: string;
+              nama_pemilik: string;
+              nilai_tagihan: number;
+            }) => ({
               plat_nomor: item.plat_nomor,
-              bulan_tahun_pajak: item.bulan_tahun_pajak,
+              tax_date: item.tax_date,
+              nama_pemilik: item.nama_pemilik,
+              nilai_tagihan: item.nilai_tagihan,
             })
           );
           setDetectionResults(formattedResults);
 
           const emailStatuses = await Promise.all(
-            formattedResults.map(async (result: { plat_nomor: string; bulan_tahun_pajak: string }) => {
-              try {
-                const emailResponse = await fetch("/api/sendEmail", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    to: "user@example.com", // Ganti dengan email dari database
-                    subject: "Tagihan Pajak Kendaraan Anda",
-                    message: `
-                      <p>Kendaraan dengan plat <strong>${result.plat_nomor}</strong> telah terdeteksi oleh sistem kami.</p>
-                      <p>Segera bayar sebelum terkena denda tambahan.</p>
-                    `,
-                  }),
-                });
-                return emailResponse.ok; // True jika email terkirim, false jika gagal
-              } catch (error) {
-                console.error("Error sending email:", error);
-                return false;
+            formattedResults.map(
+              async (result: {
+                plat_nomor: string;
+                tax_date: string;
+                nama_pemilik: string;
+                nilai_tagihan: number;
+              }) => {
+                try {
+                  const emailResponse = await fetch("/api/sendEmail", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      to: "neabarbara2@gmail.com", // Ganti dengan email dari database
+                      subject: "Tagihan Pajak Kendaraan Anda",
+                      message: `
+                        <p>Kendaraan dengan plat <strong>${result.plat_nomor}</strong> telah terdeteksi oleh sistem kami.</p>
+                        <p>Segera bayar sebelum terkena denda tambahan.</p>
+                      `,
+                    }),
+                  });
+                  return emailResponse.ok; // True jika email terkirim, false jika gagal
+                } catch (error) {
+                  console.error("Error sending email:", error);
+                  return false;
+                }
               }
-            })
+            )
           );
           setEmailStatuses(emailStatuses);
         } else {
@@ -180,7 +199,13 @@ export default function DetectPlat() {
                     <strong>Plate Number:</strong> {result.plat_nomor}
                   </p>
                   <p className="text-gray-700">
-                    <strong>Tax Date:</strong> {result.bulan_tahun_pajak}
+                    <strong>Tax Date:</strong> {result.tax_date}
+                  </p>
+                  <p className="text-gray-700">
+                    <strong>Owner&apos;s Name:</strong> {result.nama_pemilik}
+                  </p>
+                  <p className="text-gray-700">
+                    <strong>Tax Amount:</strong> {result.nilai_tagihan}
                   </p>
                   {/* Keterangan Email */}
                   {emailStatuses[index] ? (
