@@ -22,6 +22,9 @@ load_dotenv(".env")
 DATABASE_URL = os.getenv("DATABASE_URL")
 if not DATABASE_URL:
     raise ValueError("DATABASE_URL is not set in the environment variables")
+BACKEND_URL = os.getenv("BACKEND_URL")
+if not BACKEND_URL:
+    raise ValueError("BACKEND_URL is not set in the environment variables")
 
 # Setup paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

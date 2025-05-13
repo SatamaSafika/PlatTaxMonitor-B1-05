@@ -49,10 +49,13 @@ export default function DetectPlat() {
     formData.append("file", selectedImage);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/detect/", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/detect/`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -93,14 +96,26 @@ export default function DetectPlat() {
                       message: `
                         <h1>Informasi Tagihan Pajak Kendaraan Anda - Plattax Monitor</h1>
                         <p>Halo <strong>${result.nama_pemilik}</strong>,</p>
-                        <p>Kendaraan Anda dengan plat <strong>${result.plat_nomor}</strong> telah terdeteksi oleh sistem Plattax Monitor.</p>
+                        <p>Kendaraan Anda dengan plat <strong>${
+                          result.plat_nomor
+                        }</strong> telah terdeteksi oleh sistem Plattax Monitor.</p>
                         <p>Detail informasi kendaraan Anda:</p>
                         <ul>
-                          <li><strong>Nama Pemilik:</strong> ${result.nama_pemilik}</li>
-                          <li><strong>Plat Nomor:</strong> ${result.plat_nomor}</li>
-                          <li><strong>Tanggal Pajak Terakhir:</strong> ${result.tax_date}</li>
-                          <li><strong>Harga Pajak Tahunan:</strong> Rp ${Number(result.harga_pajak).toLocaleString('id-ID')}</li>
-                          <li><strong>Total Tagihan Pajak:</strong> Rp ${Number(result.nilai_tagihan).toLocaleString('id-ID')}</li>
+                          <li><strong>Nama Pemilik:</strong> ${
+                            result.nama_pemilik
+                          }</li>
+                          <li><strong>Plat Nomor:</strong> ${
+                            result.plat_nomor
+                          }</li>
+                          <li><strong>Tanggal Pajak Terakhir:</strong> ${
+                            result.tax_date
+                          }</li>
+                          <li><strong>Harga Pajak Tahunan:</strong> Rp ${Number(
+                            result.harga_pajak
+                          ).toLocaleString("id-ID")}</li>
+                          <li><strong>Total Tagihan Pajak:</strong> Rp ${Number(
+                            result.nilai_tagihan
+                          ).toLocaleString("id-ID")}</li>
                         </ul>
                         <p>Segera lakukan pembayaran sebelum dikenakan denda tambahan atau sanksi lainnya.</p>
                         <p>Terima kasih telah menggunakan layanan <strong>Plattax Monitor</strong>.</p>
