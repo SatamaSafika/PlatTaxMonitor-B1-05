@@ -6,9 +6,11 @@ import numpy as np
 from ultralytics import YOLO
 import easyocr
 import re
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session, relationship
+from sqlalchemy import select
+from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime
 import os
 from dotenv import load_dotenv
@@ -33,11 +35,38 @@ engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
 
+# Define DeteksiRecord table (for storing detection results)
 class DeteksiRecord(Base):
     __tablename__ = "deteksi_record"
     id_record = Column(Integer, primary_key=True, index=True)
     timestamp_deteksi = Column(DateTime, default=datetime.utcnow)
     plat_nomor = Column(String(15), nullable=False)
+
+# Define the TagihanPajak table with the correct columns
+class TagihanPajak(Base):
+    __tablename__ = "tagihan_pajak"
+    id_tagihan = Column(Integer, primary_key=True, index=True)
+    plat_nomor = Column(String(15), ForeignKey("kendaraan.plat_nomor"))  # Foreign key to kendaraan
+    nilai_tagihan = Column(Integer)
+    timestamp_pembuatan_tagihan = Column(DateTime)
+
+    kendaraan = relationship("Kendaraan", back_populates="tagihan_pajak")
+
+
+# Update the Kendaraan model to include the relationship with TagihanPajak
+class Kendaraan(Base):
+    __tablename__ = "kendaraan"
+    plat_nomor = Column(String(15), primary_key=True, index=True)  # Plat nomor as primary key
+    harga_pajak = Column(Integer)
+    nama_pemilik = Column(String(100))
+    kategori_kendaraan = Column(String(50))
+    email_pemilik = Column(String(100))
+    tanggal_pajak_terakhir = Column(DateTime)
+    tanggal_pajak_berlakutahunan = Column(DateTime)
+    tanggal_pajak_berlakulimatahunan = Column(DateTime)
+
+    # Relationship with TagihanPajak table
+    tagihan_pajak = relationship("TagihanPajak", back_populates="kendaraan")
 
 # Setup FastAPI app
 app = FastAPI()
@@ -90,7 +119,7 @@ async def detect_plate(file: UploadFile = File(...)):
             # Simpan ke database hanya plat nomor
             record = DeteksiRecord(
                 plat_nomor=plat_result
-            )
+            )   
             db.add(record)
             db.commit()
 
@@ -135,46 +164,48 @@ def extract_and_correct_plate(text: str) -> str:
 
     return f"{corrected_prefix} {numbers} {corrected_suffix}"
 
+# Update the vehicle tax endpoint to also return nilai_tagihan based on timestamp_pembuatan_tagihan
+@app.get("/vehicle-tax/{plat_nomor}")
+async def get_vehicle_tax(plat_nomor: str):
+    db = SessionLocal()
+    try:
+        # Query the vehicle based on plat_nomor
+        kendaraan = db.execute(
+            select(Kendaraan).filter(Kendaraan.plat_nomor == plat_nomor)
+        ).scalars().first()
 
-def extract_tax_info(text: str, exclude_numbers: List[str]) -> str:
-    """
-    Mengekstrak informasi pajak dalam format bulan.tahun dari teks OCR,
-    sambil mengecualikan angka-angka yang sudah dipakai dalam plat nomor.
-    """
-    candidates = re.findall(r'\d{1,4}(?:\.\d{1,4})?', text)
+        if kendaraan:
+            # Retrieve the valid tax date from `tanggal_pajak_berlakulimatahunan`
+            tax_date = kendaraan.tanggal_pajak_berlakulimatahunan
 
-    # Filter angka yang sudah digunakan di plat
-    filtered = [
-        c for c in candidates
-        if all(part not in exclude_numbers for part in re.split(r'\.', c))
-    ]
+            # Retrieve the latest tagihan (invoice) based on timestamp_pembuatan_tagihan
+            latest_tagihan = db.execute(
+                select(TagihanPajak).filter(TagihanPajak.plat_nomor == plat_nomor)
+                .order_by(TagihanPajak.timestamp_pembuatan_tagihan.desc())
+            ).scalars().first()
 
-    for i in range(len(filtered)):
-        current = filtered[i]
+            if latest_tagihan:
+                return {
+                    "plat_nomor": plat_nomor,
+                    "tax_date": tax_date if tax_date else "No tax information",
+                    "nama_pemilik": kendaraan.nama_pemilik, 
+                    "nilai_tagihan": latest_tagihan.nilai_tagihan
+                }
+            else:
+                return {"detail": "No tagihan found for this vehicle"}
+        else:
+            return {"detail": "No records found for this vehicle"}
 
-        # Format langsung: xx.xx
-        if '.' in current:
-            parts = current.split('.')
-            if len(parts) == 2 and all(p.isdigit() for p in parts):
-                bulan, tahun = parts
-                if 1 <= int(bulan) <= 12:
-                    return f"{bulan.zfill(2)}.{tahun.zfill(2)}"
+    except SQLAlchemyError as e:
+        db.rollback()
+        return {"error": f"Database error: {str(e)}"}
 
-        # Format dua angka terpisah (tanpa titik)
-        if i + 1 < len(filtered):
-            bulan, tahun = filtered[i], filtered[i + 1]
-            if (
-                bulan.isdigit() and tahun.isdigit() and
-                1 <= int(bulan) <= 12
-            ):
-                return f"{bulan.zfill(2)}.{tahun.zfill(2)}"
-
-    return "Tidak ditemukan"
+    finally:
+        db.close()  
 
 @app.get("/")
 def read_root():
     return {"message": "API is running. Go to /detect/ to upload an image."}
-
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
