@@ -88,12 +88,23 @@ export default function Home() {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                          to: "neabarbara2@gmail.com", // Ganti dengan email dari database
+                          to: "neabarbara2@gmail.com", 
                           subject: "Tagihan Pajak Kendaraan Anda",
                           message: `
-                            <p>Kendaraan dengan plat <strong>${result.plat_nomor}</strong> telah terdeteksi oleh sistem kami.</p>
-                            <p>Total tagihan Anda: <strong>Rp ${result.nilai_tagihan}</strong>.</p>
-                            <p>Segera bayar sebelum terkena denda tambahan.</p>
+                            <h1>Informasi Tagihan Pajak Kendaraan Anda - Plattax Monitor</h1>
+                            <p>Halo <strong>${result.nama_pemilik}</strong>,</p>
+                            <p>Kendaraan Anda dengan plat <strong>${result.plat_nomor}</strong> telah terdeteksi oleh sistem Plattax Monitor.</p>
+                            <p>Detail informasi kendaraan Anda:</p>
+                            <ul>
+                              <li><strong>Nama Pemilik:</strong> ${result.nama_pemilik}</li>
+                              <li><strong>Plat Nomor:</strong> ${result.plat_nomor}</li>
+                              <li><strong>Tanggal Pajak Terakhir:</strong> ${result.tax_date}</li>
+                              <li><strong>Harga Pajak Tahunan:</strong> Rp ${Number(result.harga_pajak).toLocaleString('id-ID')}</li>
+                              <li><strong>Total Tagihan Pajak:</strong> Rp ${Number(result.nilai_tagihan).toLocaleString('id-ID')}</li>
+                            </ul>
+                            <p>Segera lakukan pembayaran sebelum dikenakan denda tambahan atau sanksi lainnya.</p>
+                            <p>Terima kasih telah menggunakan layanan <strong>Plattax Monitor</strong>.</p>
+                            <p>Hormat kami,<br>Tim Plattax</p>
                           `,
                         }),
                       });
