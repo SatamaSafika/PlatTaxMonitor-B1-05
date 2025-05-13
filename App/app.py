@@ -131,6 +131,7 @@ async def detect_plate(file: UploadFile = File(...)):
                         "plat_nomor": plat_result,
                         "tax_date": vehicle_data.get("tax_date", "No tax information"),
                         "nama_pemilik": vehicle_data.get("nama_pemilik", "No owner info"),
+                        "harga_pajak": vehicle_data.get("harga_pajak", 0),
                         "nilai_tagihan": vehicle_data.get("nilai_tagihan", 0),
                     })
                 else:
@@ -204,6 +205,7 @@ async def get_vehicle_tax(plat_nomor: str):
                     "plat_nomor": plat_nomor,
                     "tax_date": tax_date if tax_date else "No tax information",
                     "nama_pemilik": kendaraan.nama_pemilik, 
+                    "harga_pajak": kendaraan.harga_pajak,
                     "nilai_tagihan": latest_tagihan.nilai_tagihan
                 }
             else:
