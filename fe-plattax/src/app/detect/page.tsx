@@ -15,12 +15,12 @@ interface DetectionResult {
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const detectedPlatesRef = useRef<Set<string>>(new Set());
+
   const [detectionResults, setDetectionResults] = useState<DetectionResult[]>(
     []
   );
-  const [lastPlate, setLastPlate] = useState("");
-  const [lastDetectedAt, setLastDetectedAt] = useState(0);
-  const [emailStatuses, setEmailStatuses] = useState<boolean[]>([]); // Track email statuses
+  const [emailStatuses, setEmailStatuses] = useState<boolean[]>([]);
   const { data: session, status } = useSession();
   const router = useRouter();
 
@@ -41,88 +41,108 @@ export default function Home() {
       const video = videoRef.current;
       const canvas = canvasRef.current;
 
-      if (video && canvas) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        const ctx = canvas.getContext("2d");
+      if (!video || !canvas) return;
 
-        if (ctx) {
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
 
-          canvas.toBlob(async (blob) => {
-            if (!blob) return;
+      if (!ctx) return;
 
-            const formData = new FormData();
-            formData.append("file", blob, "frame.jpg");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            try {
-              const res = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/detect/`,
-                {
-                  method: "POST",
-                  body: formData,
-                }
-              );
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
 
-              const data = await res.json();
-              const plate = data.results?.[0]?.plat_nomor;
+        const formData = new FormData();
+        formData.append("file", blob, "frame.jpg");
 
-              if (
-                plate &&
-                plate !== "Tidak ditemukan" &&
-                plate !== lastPlate &&
-                Date.now() - lastDetectedAt > 10000 // 10 detik jeda antar deteksi plat yang sama
-              ) {
-                setLastPlate(plate);
-                setLastDetectedAt(Date.now());
-                setDetectionResults((prevResults) => [
-                  ...prevResults,
-                  data.results[0],
-                ]);
-
-                // Kirim email untuk setiap hasil deteksi
-                const emailStatuses = await Promise.all(
-                  data.results.map(async (result: DetectionResult) => {
-                    try {
-                      const emailResponse = await fetch("/api/sendEmail", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                          to: "neabarbara2@gmail.com", 
-                          subject: "Tagihan Pajak Kendaraan Anda",
-                          message: `
-                            <h1>Informasi Tagihan Pajak Kendaraan Anda - Plattax Monitor</h1>
-                            <p>Halo <strong>${result.nama_pemilik}</strong>,</p>
-                            <p>Kendaraan Anda dengan plat <strong>${result.plat_nomor}</strong> telah terdeteksi oleh sistem Plattax Monitor.</p>
-                            <p>Detail informasi kendaraan Anda:</p>
-                            <ul>
-                              <li><strong>Nama Pemilik:</strong> ${result.nama_pemilik}</li>
-                              <li><strong>Plat Nomor:</strong> ${result.plat_nomor}</li>
-                              <li><strong>Tanggal Pajak Terakhir:</strong> ${result.tax_date}</li>
-                              <li><strong>Harga Pajak Tahunan:</strong> Rp ${Number(result.harga_pajak).toLocaleString('id-ID')}</li>
-                              <li><strong>Total Tagihan Pajak:</strong> Rp ${Number(result.nilai_tagihan).toLocaleString('id-ID')}</li>
-                            </ul>
-                            <p>Segera lakukan pembayaran sebelum dikenakan denda tambahan atau sanksi lainnya.</p>
-                            <p>Terima kasih telah menggunakan layanan <strong>Plattax Monitor</strong>.</p>
-                            <p>Hormat kami,<br>Tim Plattax</p>
-                          `,
-                        }),
-                      });
-                      return emailResponse.ok; // True jika email terkirim, false jika gagal
-                    } catch (error) {
-                      console.error("Error sending email:", error);
-                      return false;
-                    }
-                  })
-                );
-                setEmailStatuses(emailStatuses); // Update email statuses
-              }
-            } catch (err) {
-              console.error("Deteksi gagal:", err);
+        try {
+          const res = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/detect/`,
+            {
+              method: "POST",
+              body: formData,
             }
-          }, "image/jpeg");
+          );
+
+          const data = await res.json();
+          const allResults: DetectionResult[] = data.results || [];
+
+          // Filter hasil yang valid dan belum pernah terdeteksi
+          const newResults = allResults.filter((result) => {
+            const normalizedPlate = result.plat_nomor.trim().toUpperCase();
+            return (
+              normalizedPlate &&
+              normalizedPlate !== "TIDAK DITEMUKAN" &&
+              !detectedPlatesRef.current.has(normalizedPlate)
+            );
+          });
+
+          // Kalau tidak ada hasil baru, langsung keluar
+          if (newResults.length === 0) return;
+
+          // Tambahkan plat baru ke Set
+          newResults.forEach((r) =>
+            detectedPlatesRef.current.add(r.plat_nomor.trim().toUpperCase())
+          );
+
+          // Update hasil deteksi di frontend
+          setDetectionResults((prev) => [...prev, ...newResults]);
+
+          // Kirim email untuk hasil baru
+          const emailStatuses = await Promise.all(
+            newResults.map(async (result: DetectionResult) => {
+              try {
+                const emailResponse = await fetch("/api/sendEmail", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    to: "neabarbara2@gmail.com",
+                    subject: "Tagihan Pajak Kendaraan Anda",
+                    message: `
+                      <h1>Informasi Tagihan Pajak Kendaraan Anda - Plattax Monitor</h1>
+                      <p>Halo <strong>${result.nama_pemilik}</strong>,</p>
+                      <p>Kendaraan Anda dengan plat <strong>${
+                        result.plat_nomor
+                      }</strong> telah terdeteksi oleh sistem Plattax Monitor.</p>
+                      <p>Detail informasi kendaraan Anda:</p>
+                      <ul>
+                        <li><strong>Nama Pemilik:</strong> ${
+                          result.nama_pemilik
+                        }</li>
+                        <li><strong>Plat Nomor:</strong> ${
+                          result.plat_nomor
+                        }</li>
+                        <li><strong>Tanggal Pajak Terakhir:</strong> ${
+                          result.tax_date
+                        }</li>
+                        <li><strong>Harga Pajak Tahunan:</strong> Rp ${Number(
+                          result.harga_pajak
+                        ).toLocaleString("id-ID")}</li>
+                        <li><strong>Total Tagihan Pajak:</strong> Rp ${Number(
+                          result.nilai_tagihan
+                        ).toLocaleString("id-ID")}</li>
+                      </ul>
+                      <p>Segera lakukan pembayaran sebelum dikenakan denda tambahan atau sanksi lainnya.</p>
+                      <p>Terima kasih telah menggunakan layanan <strong>Plattax Monitor</strong>.</p>
+                      <p>Hormat kami,<br>Tim Plattax</p>
+                    `,
+                  }),
+                });
+                return emailResponse.ok;
+              } catch (error) {
+                console.error("Error sending email:", error);
+                return false;
+              }
+            })
+          );
+
+          setEmailStatuses((prev) => [...prev, ...emailStatuses]);
+        } catch (err) {
+          console.error("Deteksi gagal:", err);
         }
-      }
+      }, "image/jpeg");
     };
 
     const interval = setInterval(() => {
@@ -130,7 +150,7 @@ export default function Home() {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [session, lastPlate, lastDetectedAt, status, router]);
+  }, [session, status, router]);
 
   return (
     <div className="flex h-screen">
