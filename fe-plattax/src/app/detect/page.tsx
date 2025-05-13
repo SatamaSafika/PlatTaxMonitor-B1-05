@@ -8,6 +8,7 @@ interface DetectionResult {
   plat_nomor: string;
   tax_date: string;
   nama_pemilik: string;
+  harga_pajak: number;
   nilai_tagihan: number;
 }
 
@@ -154,6 +155,9 @@ export default function Home() {
                 </p>
                 <p className="text-gray-700">
                   <strong>Owner&apos;s Name:</strong> {result.nama_pemilik}
+                </p>
+                <p className="text-gray-700">
+                  <strong>Tax Price:</strong> {result.harga_pajak}
                 </p>
                 <p className="text-gray-700">
                   <strong>Tax Amount:</strong> {result.nilai_tagihan}
